@@ -309,7 +309,7 @@ Put tene.vim into your `~/.vim` directory (or anywhere in your {h-runtimepath}[r
 
 You would not automatically get the benefits of the help file, but this just illustrates the simplicity, versatility, and portability that comes with being one .vim file.
 
-TIP: This may be your preferred method if you use a lot of different versions of Vim, including some really old ones. +
+TIP: This may be your preferred method if you use a lot of different versions of Vim, including old ones. +
 (Including because `packadd` will not work below version 704 with patch 1485).
 |===
 
@@ -1345,7 +1345,8 @@ All the mappings follow this structure, using the example above to explain:
 
 [NOTE]
 ====
-Often {h-map}[:map] should be avoided, with {h-noremap}[:noremap] usually being advisable but, because this is a {h-plug}[<Plug>] mapping, that&#x2019;s unnecessary.
+Often {h-map}[:map] should be avoided, with {h-noremap}[:noremap] usually being advisable.
+Because this is a {h-plug}[<Plug>] mapping, that&#x2019;s unnecessary.
 _Refer&#xa0;also_&#xa0;{h-using-plug}[using-<Plug>].
 ====
 | *<Plug>* | Avoids typed {h-key-mapping}[key mappings], and is available outside the script
