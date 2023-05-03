@@ -1,0 +1,1059 @@
+*tene.txt*                     teRNARY STATUSLIne                       *vim-tene*
+
+*tene-contents*
+	  1. Introduction and aims ........... |tene-introduction|
+	  2. Features ............................ |tene-features|
+	  3. Configuration .................. |tene-configuration|
+	  4. Autocommand ...................... |tene-autocommand|
+	  5. Highlighting .................... |tene-highlighting|
+	  6. A mode behaviour ............ |tene-a-mode-behaviour|
+	  7. Walk through .................... |tene-walk-through|
+	  8. Tene .................................... |tene-tene|
+	  9. Licence .............................. |tene-licence|
+
+==============================================================================
+1.
+INTRODUCTION AND AIMS                                        *tene-introduction*
+------------------------------------------------------------------------------
+
+vim-tene is a |Vim9-script| plugin.  It produces a highly configurable,
+conceptually straightforward, |statusline|, using no |user-functions|,
+and is built via a sequence of |expressions| using |ternary| |operator|s.
+
+It began as an experiment to see whether a statusline with lots of features
+could work using such ternary expressions, and without complex user-defined
+functions, often spread across many vimscript files.  (Incidentally, Vim's
+help considers expressions using ternary operators the "least ... significant"
+of Vim's expressions.  Not in this plugin!  Refer |expression-syntax|.)
+
+1.1 Aims                                                            *tene-aims*
+========
+
+Aims expanded, as things progressed, to include:
+
+	 1. Handle every mode, where practicable.  Some |statusline| plugins,
+	    for example, don't display Vim Ex mode (|gQ|) or |Ex| mode (|Q|).
+	    |Operator-pending| modes (no, nov, noV and noCTRL-V) also are
+	    commonly either non-handled or ignored by statusline plugins.
+	 2. Provide lots of configuration options, both at startup and
+	    interactively.  The latter is important because not all editing
+	    scenarios, including intra-session, are the same.  So, whereas
+	    knowing what Unicode character is (or characters, i.e., including
+	    composing characters are) under the cursor may be critical
+	    sometimes, other times it may be inconsequential.  So ,providing
+	    interactive toggling of features was important.  (There is always
+	    |ga| or |:ascii| to get that information in this instance, but
+	    that requires keystrokes, especially when not in Normal mode.)
+	 3. "Do no harm" (https://www.vi-improved.org/plugins/) / don't
+	    break Vim's core features!
+	 4. Respect users' settings and colorschemes.  In terms of the latter,
+	    keep it low effort by recycling default highlight groups, and
+	    leave it to users to do their own thing otherwise.
+	 5. Keep things clean.  Characters such as U+E0B0 () and
+	    U+E0B1 () provided by Powerline enabled/patched fonts consume
+	    statusline "real estate".  Don't, by default, use those where
+	    there isn't any useful information provided to the user.  So, line
+	    and column number indicators are fine whereas the characters
+	    above are not.  Also enable using nothing at all if that is your
+	    preference, e.g., 53/993 38, with no line or column indicators
+	    at all.  Similarly, colours: providing mode indicators in
+	    different colours makes sense because visually it reminds you
+	    you're in a certain mode/mode group, but, applying colours
+	    everywhere because you can?  (If you want Joseph and the Amazing
+	    Technicolour Dreamcoat, this is not the plugin for you. 😂)
+	 6. Notwithstanding aim #5, provide for Unicode and Powerline
+	    characters for indicators like 'modified', 'readonly', etc.
+	    That's consistent with simplicity and utility, e.g., one character
+	    such as U+F457 () consumes less screen space, and resembles Vim's
+	    default, i.e., [+], which consumes three characters.  And making
+	    it configurable means it's easy, if you want to use ASCII
+	    characters exclusively, only to use those.
+	 7. Be independent of, but also not break, other plugins.  Trying to
+	    be all things to all people is unwise.  Plus aim #3 and aim #4
+	    would not be met.
+	 8. Run vim-tene in the way you prefer.  Use |packadd|! manually, load
+	    using Vim&#x2019;s |packages| automatically, load with a plugin
+	    manager, or source with |:runtime| or |:source| directly.  Make
+	    all those options straightforward.
+	 9. Use Vim9 script.  Vim 9, or Vim 8.2 with at least patch 3434
+	    (though preferably with patch 3555) is needed because the
+	    |ModeChanged| autocommand event is essential - see |tene-walk-augroup|
+	    - and since Vim9 script was enabled at that point it was feasible
+	    to use it.
+	10. Provide a static |statusline| that's more feature rich than the
+	    standard when sourced with a Vim version that cannot handle the
+	    Vim9 script - refer |tene-walk-Vim-8| - so that vim-tene does not
+	    cause errors when sourced by older versions.
+	11. Don't utilise any user-defined functions.
+	12. Utilise only: (a) |expressions| using |ternary| operators and
+	    (b) Vim's |builtin| functions.
+
+Keeping to these aims mostly reduced complexity.  Some statusline plugins have
+extraordinary amounts of code, often dedicated to accommodating other plugins,
+appearing to prioritise æsthetics over utility.
+
+  NOTE: Clearly the nested ternary expressions are complex.  They even
+	may be viewed as an abomination by some.  Nonetheless, conceptually,
+	the end result is simple.
+
+1.1.1 The standard statusline                     *tene-the-standard-statusline*
+When Vim loads, and 'laststatus' equals 2, Vim will draw a statusline at
+the bottom of each window.  Vim's "standard" 'statusline' may be emulated
+with one short command: >
+
+	:set statusline=%<%f\ %h%m%r%=%-14.(%l,%c%V%)\ %P
+
+<	NOTE: Enter :.so (with your cursor in the `:set` line) to see this work.
+	      NB: You need Vim 8.2 with patch 4594 (see |patches-after-8.2|)
+	      to do this (because reading Ex commands from a range of lines
+	      in the current buffer was not enabled until then.).
+
+A "translation" of that command is, "Set the statusline to":
+	 1. Truncate the statusline at the start, when necessary (%<)
+	 2. Show the path to the file in the buffer, as typed or relative (%f)
+	 3. Insert a space (\ )
+	 4. Display "[help]" buffer flag, when applicable (%h)
+	 5. Display "[+]" 'modified' flag / "[-]" if 'modifiable' is off (%m)
+	 6. Display "[RO]" 'readonly' flag, when applicable (%r)
+	 7. Right align the remainder of the statusline (%=)
+	 8. Pad with spaces up to 14 characters (%-14.(...))
+	 9. Display line number, a comma, and column-virtual column (%l,%c%V)
+	10. Insert a space (\ )
+	11. Display All/Top/Bot/percentage through the buffer's window (%P)
+
+To illustrate, the "standard" statusline, for a modified, unsaved buffer, and
+no content will appear like this (though highlighted "reverse"):
+
+ [No Name] [+]                                             1,0-1          All
+
+This vim-tene statusline plugin, as others do, extends way beyond the
+"standard".  In this plugin's case, there are myriad options set by default.
+Many may be configured in your |.vimrc| (see |tene-configuration|) or
+via <Leader> mappings, which may be used to toggle features interactively
+(see |tene-walk-leader|).
+
+Although a great deal is configurable, there are limits.  For example, unlike
+some statusline plugins, the order of what appears is fixed.  That is a
+pragmatic limitation of the self-imposed constraints noted in |tene-aims| and
+|tene-features|, including only using |ternary| expressions.
+
+Another limitation is colours (|highlight-groups|): they have been set to
+leverage a few of Vim's default highlight groups.  That's because those won't
+be reset when a |colorscheme| is loaded and |highlight-clear| is executed.
+It has also been limited to the mode indicator/name and "the rest".
+That is a sensible decision because it would make the ternary expressions
+extremely complicated if lots of highlighting optionality was included (and
+that's unnecessary).  It is also consistent with keeping things "clean" - see
+point 5 of |tene-aims|.
+
+  NOTE:	The |'tabline'| is not in scope of this plugin.  It is statusline only.
+	The default tab handling in Vim is fine (if tabs are used as they are
+	supposed to be, as described in |tab-page-intro|, not proxy |buffers|).
+	That's not hating on you if you do use tabs like buffers - it's your
+	choice - you do you.
+	Here's a gvim option for your |.vimrc| if you want a tabline with
+	information that is useful (buffer numbers appearing in each tab
+	and the tab's active window's buffer name):
+	 >
+	  set guitablabel=%{%join(tabpagebuflist('%'),'\ ◆\ ')..'\ %t'%}
+<
+==============================================================================
+2.
+FEATURES                                                         *tene-features*
+------------------------------------------------------------------------------
+
+* Handles ALL of Vim's modes, except modes where no statusline is displayed
+* Shows pending states, i.e., |Operator-pending|, |i_CTRL-K|, |i_CTRL-R|, |i_CTRL-V|
+* Up to 3x U+nnnnn may be shown (Unicode plus composing characters identified)
+* Many configuration options to turn on/off features and change information
+* Configurable via |.vimrc| and interactively with remappable <Leader> mappings
+* Independent - neither impacts other plugins nor relies on any
+* Only uses |ternary| expressions and Vim's |builtin-functions|, no |user-functions|
+* Unitary - it's a single .vim (|Vim9-script|)
+* Sequential - the Vim9 script may be read line-by-line
+* Terse - it's only ~140 lines of substantive code, albeit some are very long!
+* Fast - consistently sourced in 2ms (Terminal Vim and GUI |--startuptime|)
+
+  Note:	The expected 10 to 100 times speed increase delivered by |Vim9-script|
+	is not critical to this plugin.  That's because once the statusline
+	has been set, and configuration options are applied, vim-tene's job is
+	done.  It is neither a that has functions called repeatedly nor does
+	it perform any complex actions, e.g., multiple substitutions using 
+	complex patterns across a large buffer(s), which, from personal
+	experience, there is a huge speed performance gain versus vimscript.
+	The 2ms noted here was on a Windows 10 desktop (Intel Core i7-6700,
+	32GB RAM), though even on a lower spec Debian 11 laptop (AMD A8 7140,
+	8GB RAM), it was only 4ms-5ms.
+
+
+==============================================================================
+3.
+CONFIGURATION                                               *tene-configuration*
+------------------------------------------------------------------------------
+
+3.1 Mode names ...................................... |tene-config-mode-names|
+3.2 Digraph/Register/Special character "pending" .... |tene-config-state-S|
+3.3 Glyphs: Unicode or ASCII ........................ |tene-config-glyphs|
+3.4 Binary variables for toggling features .......... |tene-config-toggles|
+3.5 Leader keys ..................................... |tene-config-leader-keys|
+3.6 Colour Highlighting ............................. |tene-config-hl|
+
+
+3.1 Mode Names                                          *tene-config-mode-names*
+--------------
+Default names are set for modes so if you are happy with those there
+is nothing to do.  If you do want to change a name (or two, or all) it is
+simply a matter of adding a few lines of code to your ~/|.vimrc|.  The following
+example illustrates changing NORMAL to MĀORI, which in Māori literally
+means normal!
+ >
+    let g:tene_modes = exists("g:tene_modes") ? g:tene_modes : {}
+    let g:tene_modes["n"] = "MĀORI"
+<
+Line 1 adds the empty |dict|ionary if it does not already exist, but leaves the
+dictionary as-is if it does.  Line 2 illustrates configuring the text that
+will be displayed for key "n".
+
+The configurable items are listed in the table below.  Renaming them from
+the default (column 2) involves determining the right dictionary key from
+column 1, e.g., in the example above, "n", and choosing whatever you want
+the mode name to appear as.  Column 3 is provided for exemplars,
+i.e., keystrokes, from Normal mode, that will take you to the applicable mode.
+
+  g:tene_modes['...']	MODE NAME (default)	FROM NORMAL MODE
+  -------------------	-------------------	----------------
+	n       	NORMAL
+	no      	OP PENDING                  	d
+	nov     	OP PENDING (v)              	d v
+	noV     	OP PENDING (V)              	d V
+	noCTRL-V	OP PENDING (^V)             	d CTRL-V
+	niI     	INSERT (NORMAL)             	i CTRL-O
+	niR     	REPLACE (NORMAL)            	R CTRL-O
+	niV     	VIRTUAL REPLACE (NORMAL)    	gR CTRL-O
+	nt      	TERMINAL (NORMAL)           	:term CTRL-W N
+	v       	VISUAL                      	v
+	vs      	SELECT (VISUAL)             	g h CTRL-O
+	V       	VISUAL LINE                 	V
+	Vs      	SELECT (VISUAL LINE)        	g H CTRL-O
+	CTRL-V  	VISUAL BLOCK                	CTRL-V
+	CTRL-Vs 	SELECT (VISUAL BLOCK)       	g CTRL-H CTRL-O
+	s       	SELECT                      	g h
+	S       	SELECT LINE                 	g H
+	CTRL-S  	SELECT BLOCK                	g CTRL-H
+	i       	INSERT                      	i
+	ic      	INSERT COMPLETION C         	i CTRL-X CTRL-]
+	ix      	INSERT COMPLETION X         	i CTRL-X
+	R       	REPLACE                     	R
+	Rc      	REPLACE COMPLETION C        	R CTRL-X CTRL-]
+	Rx      	REPLACE COMPLETION X        	R CTRL-X
+	Rv      	VIRTUAL REPLACE             	g R
+	Rvc     	VIRTUAL REPLACE COMPLETION C	g R CTRL-X CTRL-]
+	Rvx     	VIRTUAL REPLACE COMPLETION X	g R CTRL-X
+	c       	COMMAND-LINE                	:
+	cv      	VIM EX                      	g Q
+	ce      	EX                          	Q
+	t       	TERMINAL-JOB                	:term
+
+	Notes: 1. The keys are identical to the mode codes used in |mode()|.
+	       2. In column 3, these are illustrative only, e.g., d V is not
+		  the only way to get to |linewise| |Operator-pending| (|o_V|) mode.
+		  (NB: Spaces are included for readability only.)
+	       3. Modes r, rm, r? and ! have no statusline, so are not
+		  defined.  The modes above are listed in the order in |mode()|
+		  (and which is followed by vim-tene).  The defaults are built
+		  into the ternary expressions using |get|, i.e., >
+		    get({dict}, {key} [, {default}])
+<		  This is an efficient way to set defaults for the 31 names.
+
+3.1.1 Vim's 'showmode' option
+Vim's default approach is to 'showmode', which displays a message on the last
+line, for example, when in Insert mode, -- INSERT -- is displayed.
+
+Some Vim users turn off 'showmode' when there is a statusline plugin active.
+You may choose to do that, of course.  However, there are times when the
+combination of 'showmode' and a statusline mode indicator are really useful.
+An example is where CTRL-O is used in Insert mode and v is entered.
+The mode, as revealed by mode/state indicators, is v (Visual) and the state
+is S (not triggering SafeState or SafeStateAgain) so the mode indicated in
+the statusline should be v or VISUAL (i.e., if defaults are used:
+mode(1)==#"v").  However, 'showmode' will display "--- (insert) VISUAL ---",
+which is more precise because you are not simply in Visual mode (accessed,
+via Normal mode, entering v).  The critical point is, you will revert to
+Insert mode when you leave Visual mode.  So, turn 'showmode' off, if you wish,
+hiding Vim's default information, but only if you accept such downsides.
+
+3.2 Digraph/Register/Special character "pending"           *tene-config-state-S*
+------------------------------------------------
+S state (refer |state()|) occurs in an |Insert-mode|, i.e., any of Insert,
+|Replace-mode| (R) or |Virtual-Replace-mode| (Rv), when you type one of:
+
+	CTRL-K	  Enters a digraph, e.g., oo produces U+2022, a • (|i_CTRL-K|)
+
+	CTRL-R	  Inserts the contents of a register, e.g., : puts the most
+		  recent command-line command (|i_CTRL-R|)
+
+	CTRL-V	  Either inserts literal characters, e.g., a <Tab> even when
+	  or	  that is usually overridden with 'softtabstop' or,
+	CTRL-Q	  e.g., a Unicode character such as CTRL-Vu2022 will
+		  enter the • character.  (|i_CTRL-R| and/or |i_CTRL-Q|)
+
+The default indicator for this state has been set to " I ".  That may be
+overridden by setting g:tene_state_S in your ~/|.vimrc|. For example, if
+you wanted something ludicrously verbose:
+ >
+  let g:tene_state_S = ' iK/iR/iQ/iV Pending '
+<
+If you do not want anything to appear, no problem, let g:tene_state_S = ''
+will do that.
+
+3.3 Glyphs: Unicode or ASCII                *tene-config-glyphs*  *tene-config-ga*
+----------------------------
+Several indicators may appear in a statusline.  Some well known ones are [+],
+which indicates a modified buffer, and [help], which shows you that the buffer
+is of the type Vim help.  These are part of Vim's "standard" |statusline|,
+discussed in |tene-the-standard-statusline|.
+
+Many other indicators could be displayed.  Some are useful, such as when a
+'key' is encrypting the file you're editing.  Vim has masses of |options|,
+some of which make sense to display when they're set, others not so much.
+
+Vim-tene's default is to show symbols/glyphs, which include a few Powerline
+characters.  Whether that's the right default is debatable, though users who
+prefer it off are probably more capable generally, so adding the line to make
+that happen should be a breeze for them, i.e.:
+ >
+  let g:tene_glyphs = 0
+<
+When this variable is set to 1, the default glyphs are ones that display
+nicely with font FiraCode NFM: https://www.nerdfonts.com/font-downloads.
+Some are Powerline characters such as  (U+30A1).  When set to 0, the ASCII
+character used for line number is the underscore (_), which is
+ASCII 95 (U+005F).
+
+Vim-tene sets ASCII character and glyph defaults, so, if you are happy with
+the default ASCII and/or Unicode glyphs, there is nothing for you to do.
+If you do want to change one (or two, or all) it is simply a matter of
+adding the following to your .vimrc a few lines of code.  Illustrated below,
+is changing the digraph indicator to the æ ligature (U+00E6) when ASCII and,
+when Unicode, ǽ (U+01FD).  The former will be used when g:tene_glyphs is 0
+and the latter when it is 1.
+ >
+  let g:tene_ga = exists("g:tene_ga") ? g:tene_ga : {}
+  let g:tene_ga["dg"] = ['æ', 'ǽ']
+
+Another example: this time, the line number indicator.  If you wanted the
+pilcrow rather than underscore, regardless of the value of g:tene_glyphs,
+you'd use:
+ >
+  let g:tene_ga["line()"] = ['¶', '¶']
+<
+All of g:tene_ga dictionary's configurable items, and their ASCII and Unicode
+glyph defaults, are shown in the table below.
+
+	g:tene_ga[...]	  ASCII		Glyph	Unicode	 Scope
+	--------------	  -----		-----	-------	 -----
+	|'buftype|help'	  [help]		U+F128	 local
+	'paste'		  P			U+F8E2	global
+	'mod'		  [+]			U+F457	global
+	'noma'		  [-]			U+F458	global
+	'pvw'		  [Preview]		U+F1C4	 local
+	'dg'		  ^K		Æ	U+00C6	global
+	'key'		  E			U+F80A	 local
+	'spell'		  S			U+F42E	 local
+	'|recording|'	  @			U+F519	   -
+	'ro'		  [RO]			U+F05E	 local
+	'|line()|'	  _			U+E0A1	 local
+	'|col()|'	  c			U+EAF5	 local
+	'|virtcol()|'	  |			U+E0A3	 local
+
+	Notes: If there are any you do not want to display at all, e.g., if
+	       you wanted line numbers but never any indicators, just do this: >
+	       let g:tene_ga["line()"] = ['', '']
+<
+Some of these variables may be self-evident, though it is worth explaining
+what each is doing nonetheless.
+
+  g:tene_ga[...]	Displays ASCII/glyph when?
+  ==============	==========================
+  |'buftype|help'	The buffer is of type help, like this one.
+  'paste'		Option &paste is on (Vim is in "Paste mode").
+  'mod'			The buffer has been modified.
+  'noma'		The buffer is not modifiable.
+  'pvw'			The buffer is a preview window.
+  'dg'			When set, the second method for entering digraphs
+			(i.e., {char1} <BS> {char2}), is enabled - refer
+			|digraphs-use|.  For example, a<BS>e to enter the
+			ligature æ, and so forth.  The only modes where
+			entering a digraph in that manner is allowed are
+			i, R, Rv, c, and cv (i.e., |gQ|), so only show the
+			indicator if one of those modes is the current mode.
+  'key'			Display a key indicator when the 'key' option (i.e,
+			the buffer is encrypted).  And, if the 'cryptmethod'
+			is not |blowfish2|, show that too (because other
+			encryption types are discouraged; refer |:X|).
+  |'spell'|		Display a spell checking indicator.
+  '|recording|'		Display a macro recording indicator when one is being
+			recorded as well as the register to which it is being
+			recorded.  It's more useful when showmode is off, but
+			still useful to have it indicated in the status line.
+  'ro'			Display a read only flag.  %R or %r could be used, but
+			this provides optionality (e.g., if you want to use a
+			symbol for read only, which is what's been enabled).
+  '|line()|'		Display a line number indicator "prefix".
+  '|col()|'		Display a byte column indicator "prefix".
+  '|virtcol()|'		Display a virtual column indicator "prefix".  (NB: The
+			virtual column, virtcol('.') differs from either %v or
+			%V.  Should %v show the same thing?  It almost does,
+			except for where a char is one that consumes more than
+			a column (i.e., it displays the same for multi-byte
+			characters, but differently where the character is
+			considered one, like <Tab>, but which can consume more
+			than one character space. It is very close, because it
+			is the same after the <Tab> but is different when the
+			cursor is sitting at the start of the <Tab>.)
+
+3.4 Binary variables for toggling features                 *tene-config-toggles*
+------------------------------------------
+Several variables enable toggling of features.  For example,
+g:tene_buffer_num, when set to 1, will display b{buffer number} after
+the mode indicator.  The defaults are indicated in the table below.
+They may be overridden by setting them to the opposite (i.e., 0 if the
+default is 1, and vice versa) in your |.vimrc|.
+
+	Variable	 Default	Explanation, i.e., "Shows..."
+	--------	 -------	-----------------------------
+	g:tene_buffer_num   1   	b{buffer number} after mode indicator
+	g:tene_file_tail    1   	file name only, not the full path
+	g:tene_glyphs       1   	See |tene-config-glyphs|
+	g:tene_keymap       1   	display <|b:keymap_name|> in mode label
+	g:tene_line_num     1   	line number (cursor position)
+	g:tene_line_nums    1   	total number of lines in the buffer
+	g:tene_virtcol      1   	virtual column number, |virtcol()|
+	g:tene_unicode      1   	U+nnnnn of character(s) at the cursor
+	g:tene_col          0   	|col()| (and -{num} if %V is different)
+	g:tene_hl_group     0   	highlight group under the cursor
+	g:tene_mode         0   	n, ce instead of NORMAL, EX, etc.
+	g:tene_modestate    0   	|mode(|1) and |state()| codes, e.g., i S
+	g:tene_path         0   	full filepath of the buffer
+	g:tene_percent      0   	% (at the cursor) through the buffer
+
+Setting these will be a matter of preference / how you use Vim.  For example,
+some users have little interest in buffer numbers so may wish to set
+g:tene_buffer_num to 0 whereas other users may use buffers a lot and find
+the default, showing buffer numbers, essential, even for aiding doing
+things like :[N]|sb| to split the current window and edit buffer [N].
+
+Some toggles will be more useful depending on the editing scenario.  That is
+why the ability to not only set them in your |.vimrc|, but also toggling
+interactively has been enabled.
+
+3.4.1 Mode and state indicator
+For example, while creating this plugin it was
+priceless having g:tene_modestate, which shows not only the current |mode(1|)
+code but also the |state()|.  For example, when in Normal mode and the d key
+is pressed, the mode and state are "no oxS", with "no" meaning mode
+|Operator-pending| and state "oxS".  The o, x, and S mean:
+
+	    o	|Operator-pending| mode
+	    x	executing an |autocommand|
+	    S	not triggering |SafeState| or |SafeStateAgain|
+
+3.4.2 Keymap
+Some of the things that can be toggled options may be inconsequential to some
+users, with 'keymap' being an example.  Although it has been made active,
+many users will never see its manifestation in the statusline, which is set to
+display the value of b:keymap_name (%k) when it is set, e.g., such as when: >
+
+  let &keymap="german-qwertz"
+<
+This will change mode indicators like "INSERT" to "INSERT <de>" (for all the
+Insert modes and Command-line mode).  For anyone who does not use keymaps,
+this is of little importance but, for those who do, it may be preferable to
+know that the 'keymap' is active.  If you really do not want it at all,
+let g:tene_keymap=0 in your .vimrc will do that.
+
+3.4.3 Unicode character identification
+Unicode character identification, using g:tene_unicode=1, is worth explaining.
+Vim provides for %b and %B items in the statusline.  Those can be used
+to show the value of "the" character under the cursor (%b being decimal
+and %B hexadecimal).  The %b and %B items are fine, however, they only
+consider the first character under the cursor, not composing characters.
+
+The %B item could be expressed as:
+>
+  printf('%X',char2nr(matchstr(getline('.')[col('.')-1:-1],'.')))
+<
+Handling composing characters is a good idea though too.  Examples are:
+	Ä (U+0041,U+0308), not to be confused with Ä (U+00C4), which
+	  illustrates another benefit, and
+	Ä̧ (U+0041,U+0308,U+0327).
+
+Refer https://unicode.org/faq/char_combmark.html
+
+These have been handled so that up to three characters under the cursor will
+be shown in the statusline.  The last example above displays U+41,U+308,U+327
+in the statusline.
+
+  Note:	Technically, there should be four digits following the U+.  That has
+	not been done because it frequently uses two extra characters without
+	providing any additional information.
+
+This is also helpful when using a font that includes programming ligatures,
+e.g., != (U+21,U+3D) could be rendered as something that looks like
+a (two-character width) ≠ (U+2260).  Putting aside the merits of programming
+ligatures (no thanks, IMHO), it is your choice: identifying, via the
+statusline, the Unicode characters in your buffers may be useful.
+
+3.5 Leader keys                                        *tene-config-leader-keys*
+---------------
+As listed in |tene-config-leader-list|, there are 14 <Leader> key mappings
+set by default.  Those may be changed to different key mappings -
+as explained in |tene-walk-leader|, a default will not be set when there
+is a mapping you have made.
+
+Say you do not like the mapping of <Leader>tz to <Plug>TeneZ for toggling
+line numbers and you wanted <Leader>tt to do that instead.  In your |.vimrc|,
+this would achieve that:
+>
+	map <Leader>tt <Plug>TeneZ
+<
+This prevents the mapping of <Leader>tz, the default, to <Plug>TeneZ because
+<Plug>TeneZ is already mapped to <Leader>tt by the time vim-tene executes.
+
+Another example: you prefer to have <Leader>tp toggle the percentage (through
+the file) indicator.  This would achieve that:
+>
+	map <Leader>tp <Plug>Tene%
+<
+Be aware though, this not only creates that overriding mapping but:
+	(a) the default mapping of <Leader>t% now will not be mapped because
+	    !|hasmapto|('<Plug>Tene%') is now false (i.e., it is mapped), and
+	(b) <Leader>tp will no longer be defaulted to <Plug>TeneP because
+	    |maparg| will determine that <Leader>tp has been mapped already.
+
+3.6 Colour Highlighting                                         *tene-config-hl*
+-----------------------
+Mode indicators, the active statuslines, and inactive statuslines' colours are
+all configurable - see |tene-highlighting|.
+
+==============================================================================
+4.
+AUTOCOMMAND                                                   *tene-autocommand*
+------------------------------------------------------------------------------
+
+There is one autocommand:
+>
+  autocmd ModeChanged *:[^t]\+ redrawstatus
+<
+The |ModeChanged| event, enabled on 2021-09-13 (v8.2.3434), was an
+essential improvement, enabling easy statusline display of all modes
+(other than those which do not have statuslines, i.e., r, rm, r?, and !).
+
+Redrawing the statusline when the mode has changed is essential in
+some cases, e.g., when entering |Ex| mode with |Q|, because without
+the |ModeChanged| autocommand event, it does not appear to be displayable.
+Compare other statusline plugins: do any not continue to display Normal
+when in Ex mode?  Even more important than Ex mode and Vim Ex (|gQ|)
+mode is the |Operator-pending| mode. Without the |ModeChanged| autocommand
+event, displaying mode indicators for mode codes no, nov (|o_v|), noV (|o_V|),
+and no^V (|o_CTRL-V|) is either impossible or not obviously achievable.
+
+  NOTE:	Incidentally, the way modes change is not always direct.  For example,
+	if going from n to no to nov by keying dv, the mode transition is:
+		Key		 d	v
+		Mode	n	no	n	nov
+	It's not clear why that's the case, i.e., the "extra" n between no and
+	nov, but it can be shown/proven by entering the following command
+	after starting Vim: >
+	  :autocmd ModeChanged * call popup_menu(mode(1),#{time: 2000})
+<	(This will generate a two second popup with every mode change.)
+>
+The only exception that's been handled is when going to terminal mode.
+There are some instances where 'showmode' displays incorrect information
+when |redrawstatus| is executed upon entering a terminal window.  (An example
+is where CTRL-O CTRL-W w is used to go to the terminal from a buffer in
+Insert mode.  If redrawstatus is executed, showmode displays -- (insert) --
+and that will persist, even if you return to the window that is in
+Insert mode.)  Consequently, the autocommand for the |ModeChanged| autocommand
+event excludes redrawing the statusline when entering a terminal window.
+
+
+==============================================================================
+5.
+HIGHLIGHTING                                                 *tene-highlighting*
+------------------------------------------------------------------------------
+
+Highlighting has been kept simple.  This has been achieved by leveraging
+five of Vim's |highlight-default| groups (|hl-DiffAdd|, |hl-ErrorMsg|,|hl-Pmenu|,
+|hl-Visual|, and |hl-WildMenu|), only applying distinct highlighting to mode
+indicators, and leaving the rest to four of Vim's default highlight groups,
+i.e., |StatusLine|, |StatusLineNC|, |StatusLineTerm| and |StatusLineTermNC|.
+
+Two benefits in doing this include:
+	1. Little time is wasted messing with colours and, critically,
+	2. Vim's default |highlight-groups| are immune from being cleared by
+	   |highlight-clear|, which |colorscheme|s normally execute.
+
+	NOTE:	This is a bit of a "hack" insofar as the five highlight groups
+		leveraged are unrelated to the mode indicators, but results of
+		testing were good, i.e., the indicators of modes seemed to
+		display well with 'background' either "light" or "dark"
+		using Vim 9's default |colorscheme|s.
+
+The dictionary g:tene_hi (which, by default, is empty) has up to nine items
+that may be used to configure |highlight-groups| to your liking.  By default,
+i.e., if none are overridden, the following groups are used:
+
+ g:tene_hi  Highlight group    Used for
+ ---------  ---------------    --------
+    c       |StatusLineTermNC|   |Command-line| and |Ex| modes' indicators, and the
+                               inactive terminal statusline (the entire line)
+    i       |WildMenu|           |Insert| mode indicator
+    n       Visual (|hl-Visual|) |Terminal-normal| mode (nt) and
+                               |Normal| (n, niI, niR, and niV) modes' indicators
+    o       |ErrorMsg|           |Operator-pending| indicator and " I " in S state
+    r       |Pmenu|              |Replace| mode indicator
+    s       |StatusLine|         Active statusline, following the mode indicator
+    t       |StatusLineTerm|     Active terminal statusline, after the indicator
+    v       |DiffAdd|            |Visual| and |Select| modes' indicators
+    x       |StatusLineNC|       Inactive statuslines (the entire statusline)
+
+Since the default highlight groups differ depending on the 'background',
+using this approach is also dynamic in that, if the |colorscheme| or background
+changes, the statuslines do too.
+
+Of course, these highlight groups may not be to your liking.  To change any of
+them, add to your ~/|.vimrc|, before where vim-tene is loaded, the following:
+ >
+  let g:tene_hi = {}
+<
+Then specify whatever overrides you want for any of the nine items listed
+above.  For example, if you use Windows gvim, the default light scheme has
+an inactive statusbar that is the same background colour as the active one.
+To make it more obvious that it's inactive, the following could be added:
+ >
+  let g:tene_hi['x'] = 'Conceal'
+<
+(In default Windows gvim this is |guifg|=LightGrey and |guibg|=DarkGrey.)
+
+5.1 Using an augroup
+--------------------
+Whether you love it or loathe it, the gruvbox |colorscheme| seems to be many
+Vim users' favourite colorscheme.  If you are in the "love it" camp,
+keep reading; if in "loathe it", skip to Section 6.  :+29 will get you there!
+
+With gruvbox as your colorscheme (tested in Window gvim only), one approach
+is to add an |augroup| to your .vimrc to have colours that are more
+æsthetically in keeping with that colorscheme:
+ >
+  augroup gruvbox_tene
+    autocmd!
+    autocmd ColorScheme gruvbox {
+        g:tene_hi = exists("g:tene_hi") ? g:tene_hi : {}
+        g:tene_hi['o'] = 'DiffDelete'
+        g:tene_hi['i'] = 'IncSearch'
+        g:tene_hi['r'] = 'DiffText'
+        g:tene_hi['v'] = 'DiffChange'
+      }
+  augroup END
+
+Of course, this is only illustrative.  You are not limited to re-using the
+default highlight groups.  So, you could define your own highlight groups
+and add to the above augroup something like:
+ >
+        hi tene_x gui=italic guifg=#dadada guibg=#d5c4a1
+        g:tene_hi['x'] = 'tene-x'
+<
+... and "da da", the Inactive statuslines ('x') will now appear with a
+gross italic grey on a sickening pastel tan background.  (You were warned.)
+
+==============================================================================
+6.
+A MODE BEHAVIOUR                                         *tene-a-mode-behaviour*
+(To avoid?)
+------------------------------------------------------------------------------
+
+This section is not about vim-tene specifically - it's about behaviour
+identified when writing the plugin.  That is the retention of Insert mode
+when entering the window of an unmodifiable, buffer.  (The details and a
+discussion of this, including why, in some cases it may be wanted, can be
+found at https://github.com/vim/vim/issues/12072.)
+
+Initially (in development) a couple of |BufEnter| autocommands were used to
+address the default behaviour whereby, if you are in one of the Insert modes
+(|Insert|, |Replace|, |Virtual| Replace) and click (or CTRL-O CTRL-W w, i.e.,
+|i_CTRL-O| |CTRL-W|) into an unmodifiable buffer, e.g., a |netrw| or help
+buffer, the applicable Insert mode persists, despite the buffer not allowing
+changes.  There are scenarios where this may be wanted, e.g., if you are
+transiting through |windows| and do not want the Insert mode to change, though
+it seems unlikely that is what most users would want/expect.  (And it fails
+when there's a terminal window somewhere in the transit because entering a
+terminal window stops the Insert mode).  The downside of retaining the
+Insert mode is that entering a |netrw| or help buffer, will generate an error
+upon pressing almost any key aside from arrow keys.
+
+For anyone who does not want that behaviour, vimscript like the following
+may be added to your ~/.vimrc: >
+
+  augroup forcenormal
+    autocmd!
+    autocmd BufEnter * execute (!&modifiable && !&insertmode)
+          \ ? ':call feedkeys("\<Esc>")' : ''
+    autocmd BufEnter * execute (!&modifiable && &insertmode)
+          \ ? ':call feedkeys("\<C-L>")' : ''
+  augroup END
+
+This sends the applicable keys to the unmodifiable buffer's window when it's
+entered, changing it to |Normal| mode.  There are two things to be aware of
+if you opt for this.  First, there may be a |bell|.  Adding `:set belloff+=esc`,
+to your ~/.vimrc, is the solution to avoid that annoyance.
+Second, if you have a navigation mapping, e.g., inoremap <F3> <C-O><C-W>w,
+it will be "broken" insofar as if you navigate to a window where it's been
+changed to Normal, the <F3> will no longer be applicable because Insert mode
+will have ended.
+
+The augroup code, above, also handles 'insertmode'.  When that option is
+on, it makes Vim work in a way that treats Insert mode as the default mode.
+A consequence of having Insert as the default is that it applies when
+entering |netrw| or other unmodifiable buffers' |windows|.  The second |BufEnter|
+command sends CTRL-L, making the |unmodifiable| buffer automatically go to
+|Normal| mode when entered (specifically when 'insertmode' is set).
+
+
+==============================================================================
+7.
+WALK THROUGH                                                 *tene-walk-through*
+------------------------------------------------------------------------------
+
+7.1 Accommodating Vim 8 ............................ |tene-walk-Vim-8|
+7.2 Namespace ...................................... |tene-walk-namespace|
+7.3 Dictionaries ................................... |tene-walk-dictionaries|
+7.4 Variables ..................................l... |tene-walk-variables|
+7.5 Autocommand group .............................. |tene-walk-augroup|
+7.6 Statusline commands ............................ |tene-walk-statusline|
+7.7 Enabling <Plug> commands for toggling .......... |tene-walk-plug|
+7.8 Leader mappings ................................ |tene-walk-leader|
+
+This walk through provides details and, in places, reasons why things were
+done the way they were.  It's feasible because tene.vim is only ~140 lines
+of Vim9 script (excluding commented lines).
+
+This is not a detailed run through of the configuration options or mappings.
+(For those, see |tene-configuration| and |tene-walk-leader|.)
+
+  NOTE:	A more detailed walk through, including screenshots, is included in
+	the vim-tene README.adoc at https://github.com/kennypete/vim-tene
+
+7.1 Accommodating Vim 8 (and even back to Vim 7.2)             *tene-walk-Vim-8*
+--------------------------------------------------
+Although vim-tene is designed to work with Vim 9 (or Vim 8.2 on/after
+patch 3434), prior to the |vim9-namespace| is some vimscript.  It tests
+for whether the version of Vim is neither 9 nor 8.2 with patch 3434.
+If neither are so, it sets the statusline to something more feature rich
+than Vim's standard statusline (see |tene-the-standard-statusline|).
+This exploits the limited ability to precede Vim9 script with vimscript -
+refer |vim9-mix|.
+
+If sourced with Vim 8.2 (with patch 1705), a warning may be provided in
+a popup.  This may be enabled by defining the variable g:tene_nowarn in
+your .vimrc (noting it can be defined as anything).  You may want that when
+you use Vim 9 most of the time and a Vim 8.2 version, without patch 3434,
+only occasionally.
+
+Versions before 8.1 patch 1705 cannot show the popup warning - because it
+will error - but the static statusline is still applied.  This works on
+versions 8.1, 8.0, 7.4, 7.3, and 7.2.
+
+  Note:	This has been tested all the way back to Win32 console version 7.2,
+	https://ftp.nluug.nl/pub/vim/pc/vim72w32.zip - 2008-08-09.
+
+To illustrate, you may use gvim 9 in Windows, Vim 9 in PowerShell,
+Vim 8.2.2434 in Debian 11 stable (i.e., the version provided with Bullseye -
+https://packages.debian.org/bullseye/vim, Vim 8.2.4836 in iSH, and iVim 8.1
+on an iPhone.  In a scenario like that, the same .vimrc could be used (bar the
+naming, i.e., |_vimrc| in Windows), using |packadd|! to source vim-tene, and
+letting vim-tene set the static statusline when the version is either <8.2 or
+Vim 8.2 without patch 3434.
+
+In summary, vim-tene will enable the following:
+
+	Version     Patch   vim-tene features enabled
+
+	9           all     All
+	8.2         >=3555  All
+	8.2         >=3434  All, excluding |Operator-pending| handling
+	8.1         >=1705  Static statusline; optional warning (g:tene_8warn)
+	8.x or 7.?  all     Static statusline; no optional warning
+
+Vimscript in your .vimrc, such as the following, could enable use of vim-tene
+regardless of whether the version is 7, 8 or 9, provide the popup warning,
+and also handle the scenario where vim-tene either fails or is unavailable:
+ >
+  try
+    let g:tene_8warn = 1
+    packadd! vim-tene
+  catch
+    set statusline=\ %-5.(%{mode(1)}%)%<%t,b%n%M%R%H%Y%=%{&ff}\ %l/%L,%c%V\ %P
+  endtry
+<
+NOTE:	This presumes you are using Vim's |packages| functionality, not
+	sourcing vim-tene with a plugin manager.
+
+7.2 Namespace                                              *tene-walk-namespace*
+-------------
+The |vim9script| statement "tells Vim to interpret the script in its own
+[|vim9-namespace|]".
+
+7.3 Dictionaries                                         *tene-walk-dictionaries*
+----------------
+There are three |Dictionaries|.  All are empty by default.
+
+g:tene_hi{}                                                 *tene-dictionary-hi*
+You may use this to override default highlight group
+settings.  Those are explained in |tene-highlighting|.
+
+g:tene_modes{}                                           *tene-dictionary-modes*
+You may use this to override default mode names,
+i.e., the names displayed at the start of the statusline.  The defaults are
+listed in |tene-config-mode-names|, and include "INSERT", "VISUAL BLOCK", etc.
+
+g:tene_ga{}                                                 *tene-dictionary-ga*
+You may use this to override default glyphs/symbols,
+which are used for indicators like 'key', 'spell', etc.
+The defaults are listed in |tene-config-glyphs|, and include, as examples,
+'key' (, U+F80A) and 'spell' (, U+F42E).
+
+	Note: The Unicode defaults have been tested with the Powerline
+	      enabled font FiraCode NFM in Windows gvim (8 and 9) and Vim 9,
+	      PowerShell Vim 9, iVim Vim 8, iSH Vim 8, gvim and Vim in
+	      Debian 11, and Vim 8 WSL Debian 11.
+	      (NB: "8" here means version 8.2 with patch 3434.)
+	      Setting g:tene_symbols to 0 avoids (by default) using
+	      characters other than ASCII ones, for example, the character K
+	      for 'key' and character S for 'spell' in the examples above.
+
+7.4 Variables                                              *tene-walk-variables*
+-------------
+
+7.4.1 g:tene_state_S
+This is a special variable used to prepend (only before Insert modes' names,
+i.e., modes i, R, and Rv), an indicator that one of |i_CTRL-K| (digraphs),
+|i_CTRL-R| (registers), or |i_CTRL-V| (special characters) is "pending".
+When Vim awaits character input in those special cases, it goes into
+|state| S (|SafeState|).  The default has been set to " I ", i.e. space I
+space, which provides a succinct indicator that Vim is awaiting input after
+CTRL-K (?), CTRL-R ("), or CTRL-V/CTRL-Q (^).
+
+	Note: Ideally, a similar indicator would be possible for other
+	      S state scenarios.  For example, f, F, t, T, g, and [count],
+	      all await further input when used in Normal mode, however,
+	      although Vim's help notes (in |state()|):
+
+	      S   Not triggering SafeState or SafeStateAgain, e.g. after
+	          |f| or a count
+
+	      it does not seem to do so after f (or the other S state
+	      scenarios); that is, it doesn't appear to be detectable using
+	      the |state()| builtin function.
+
+7.4.2 Variables that may be toggled
+These variables provide for options that may be turned on/off.  For example,
+g:tene_glyphs defaults to 1, so Unicode characters (outside of ASCII's range,
+including some Powerline ones) are used for indicators.  If set to 0,
+in your |.vimrc|, only ASCII characters will be used (by default, i.e., you
+may change those too if you want to).  There is an option to toggle
+interactively with <Leader>tg too.  These options are explained in detail
+in |tene-config-toggles|.
+
+7.5 Autocommand group                                        *tene-walk-augroup*
+---------------------
+The tene |augroup| starts with autocmd! (|autocmd-remove|), which clears the
+existing |autocommand| if the plugin is sourced when already loaded to ensure
+it does not appear twice - refer |autocmd-groups|.
+
+The sole autocommand event is critical, i.e., |ModeChanged|.  Without this,
+some modes (examples: |Ex-mode| and |Operator-pending|) are not detected,
+or at least there appears no obvious way to detect them.  From using a few
+other statusline plugins, it seems either they couldn't detect such modes
+or they are not handled because are uncommon (like Ex mode), so nobody
+contemplated handling them?
+
+When a change in mode is detected, |redrawstatus|! is used, which ensures
+all windows' statuslines are redrawn.  That may be in one of the modes that
+is normally not easily (or not at all?) detectable.  Those include
+|Operator-pending| modes, with modes no, nov, noV, and noCTRL-V all indicated
+when applicable (such as when pressing d in Normal mode (mode no), and
+then v (mode nov), V (mode noV) or CTRL-V (mode noCTRL-V).
+Refer |mode()|.  All the modes handled are listed at |tene-config-mode-names|.
+
+7.6 Statusline commands                                   *tene-walk-statusline*
+-----------------------
+These commands build the statusline, with a series of appending commands,
+using ternary expressions for conditional components.  They start with the
+modes name and their applicable highlight groups.  The default and
+user-determined components are then appended.
+
+To illustrate, the following line of code adds a 'b' and the buffer number to
+the statusline, provided the variable g:tene_buffer_num equals 1:
+ >
+  set statusline+=%{g:tene_buffer_num==1?'b'..bufnr('%')..'\ ':''}
+<
+Being a ternary operator-driven expression, the false condition needs to be
+specified, so when g:tene_buffer_num does not equal 1 the addition to the
+statusline is '', i.e., nothing.
+
+This example also illustrates another design decision: in most cases, Vim's
+|builtin-functions| - here |bufnr()| - are used versus the shorthand
+statusline item (which in this case is %n). The following are synonymous:
+>
+  set statusline+=%{g:tene_buffer_num==1?'b'..bufnr('%')..'\ ':''}
+  set statusline+=%{%g:tene_buffer_num==1?'b%n\ ':''%}
+<
+Reasons for preferring the more verbose |bufnr()| are:
+	 1. It is easier to see what's being done in the code, i.e., bufnr()
+	    versus %n, which requires you to look up the help, whereas bufnr()
+	    you can infer means "buffer number", and
+	 2. %{|expression|} rather than %{%|expression|%} is more readable.
+	    It is easy to either omit or include % signs.
+
+This is a simple example, though conceptually all of the ternary expressions
+are like this.  Some are nested and/or have more than one setting or variable
+in scope.  And some are quite long.
+
+7.7 Enabling <Plug> commands for toggling                       *tene-walk-plug*
+-----------------------------------------
+As noted in |tene-walk-variables|, there are several variables that may be
+toggled.  They may be left as defaults, and/or set in your .vimrc, and/or
+toggled interactively.
+
+In terms of toggling interactively, the map <Plug> commands do that.  And,
+predictably, they execute ternary expressions!  They also follow the approach
+outlined in |using-<Plug>|, because it is possible that you may want to map
+your own key(s) to a mapping(s).
+
+An example follows (which has been split into two lines); the first, for the
+map command up to TeneB<Space>, and the second the <Cmd> the mapping executes.
+ >
+  map <Plug>TeneB
+  <Cmd>execute "let g:tene_buffer_num = (g:tene_buffer_num == 1) ? 0 : 1"<CR>
+<
+All the mappings follow this structure, using the example above to explain:
+
+	|map| the key sequence (in Norm, Vis, Sel and Opr); refer |map-table|
+	|<Plug>| avoids typed key mappings, and is available outside the script
+	TeneB is a unique name (the script name + char(s)); refer |using-<Plug>|
+	|<Cmd>| starts a "command mapping" without changing modes in Vis and Opr
+	|execute| executes the string that follows it as an Ex command
+	"let ..."<CR> is the ternary expression toggling the variable
+
+See |tene-config-toggles| for the list of toggleable variables.
+
+	Note: Often 'map' should be avoided, with |:noremap| usually being
+	      advisable.  However, because this is a <Plug> mapping, that's
+	      unnecessary.  Refer |<Plug>| and |using-<Plug>|.
+
+7.8 Leader mappings                                           *tene-walk-leader*
+-------------------
+To use the <Plug> mappings, explained above, each <Plug> mapping is itself
+mapped to a |<Leader>| key sequence.  There are two exceptions though:
+
+	1. Only if you have not already mapped the applicable <Plug> mapping.
+	   That is, a further mapping won't be added.  That is because it
+	   would be rare to want multiple mappings doing the same thing), and
+
+	2. Only if the <Leader> mapping, which would be created, doesn't
+	   exist already.  That's unlikely though.  All the <Leader> mappings
+	   are two keys, i.e., <Leader>t{char}.  Nonetheless,  overwriting any
+	   of your mappings should be avoided!  (That is consistent with
+	   |tene-aims| point 4: respect users' settings.)
+
+An example follows, mapping <Leader>tb to <Plug>TeneB, which toggles the
+display of buffer numbers.  It has been split into two lines for readability:
+ >
+  execute (!hasmapto('<Plug>TeneB') && maparg('<Leader>tb', '') == '')
+  ? ':map <Leader>tb <Plug>TeneB' : ''
+<
+	|execute|
+		Executes the following Ex command.
+	!|hasmapto|('<Plug>TeneB')
+		Tests for whether <Plug>TeneB has been mapped already.
+	|maparg|('<Leader>tb', '') == '')
+		Tests for whether <Leader>tb has been mapped already.
+		NOTE: initially this was coded as maparg(g:mapleader .. "tb"),
+		but on at least one O/S (Raspberry Pi, Debian 10) it produced
+		an error, because g:|mapleader| was not recognised as a global
+		variable.  On every other O/S it was so, because '<Leader>tb',
+		'<Space>tb' and g:mapleader .. "tb" all work (when <Space> is
+		the <Leader> key), that is what the code was changed to.
+	'|:map| <Leader>tb <Plug>TeneB'
+		Maps, in |Normal|, |Visual|, |Select|, and |Operator-pending| modes
+		<Leader>tb to <Plug>TeneB.  This toggles g:tene_buffer_num,
+		showing or hiding "b" and the buffer number,
+		see |tene-config-leader-list|, below).
+	: ''
+		This is the "do nothing" part of the ternary expression.
+
+The list of default <Leader> mappings:                 *tene-config-leader-list*
+
+     <Leader>	<Plug>	Display Toggles ("on" / "off")
+     --------	------	--------------------------
+	t%	Tene%	Percent (at the cursor) through the buffer / NOTHING
+	tb	TeneB	b{buffer number} after mode indicator / NOTHING
+	tc	TeneC	|col()| (and -{num} if %V is different) / NOTHING
+	tf	TeneF	File name only / Relative or full path plus file name
+	tg	TeneG	Unicode glyphs used for line number, etc. / ASCII used
+	th	TeneH	Highlight group under the cursor / NOTHING
+	tk	TeneK	Indicate "b:keymap_name" in mode label / NOTHING
+	tl	TeneL	Line number (cursor position) / NOTHING
+	tm	TeneM	NORMAL, INSERT, VISUAL LINE, EX / n, i, V, ce
+	tp	TeneP	Full file path of the buffer / Relative file path
+	ts	TeneS	|mode(|1) and |state()| codes / NOTHING
+	tu	TeneU	U+nnnnn of character(s) at the cursor / NOTHING
+	tv	TeneV	Virtual column number, |virtcol()| / NOTHING
+	tz	TeneZ	Total number of lines in the buffer / NOTHING
+
+Configuring these to use different <Leader>{characters} to the defaults is
+explained in |tene-config-leader-keys|.
+
+----------------------
+And that's it, THE END.
+
+Morpheus: "After this, there is no turning back."              *tene-whero-piro*
+
+(Well, other than the |modeline|, with |foldmethod|=marker, which makes |folds|
+apply automatically according to the included fold markers, {{{ ... }}} -
+refer |fold-marker|.  And to wrap it up, literally, there's 'nowrap'.
+Although long lines have drawbacks, sometimes there are benefits too, e.g.,
+using |i_CTRL-Y| and |i_CTRL-E| when editing several lines with similar content.)
+
+
+==============================================================================
+8.
+TENE                                                                 *tene-tene*
+------------------------------------------------------------------------------
+
+Why call the plugin "tene"?  Tene, in Māori, means "impromptu", "improvised",
+or "spontaneous".  I had no intention of writing a statusline plugin: it came
+about as I looked for a way to have a ternary statusline in my |.vimrc| and it
+escalated from there.  Impromptu?  Sure!  I wanted to get away from
+bloated statusline plugins, which, although sometimes feature-heavy,
+can be slow, can be hard to follow what's going on (with heaps of
+user-defined functions spread across loads of files), and doing lots of
+things to accommodate other plugins.
+
+Avoiding "line" directly in the name was incidental because, although it's
+useful for identification as a statusline plugin, I made the
+deliberate decision to use only ternary expressions (and also no |user-defined|
+|functions|), "tene" works in that regard too: it's a teRNARY STATUSLIne.
+
+
+==============================================================================
+9.
+LICENCE                                              *tene-license* *tene-licence*
+------------------------------------------------------------------------------
+
+BSD 3-Clause License
+https://github.com/kennypete/vim-tene/blob/main/LICENCE
+Copyright © 2023 Peter Kenny
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
