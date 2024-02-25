@@ -249,7 +249,10 @@ You should have a directory structure like this (Linux and Windows respectively)
 
 [.text-center]
 image::./images/tene-install-debian.jpg[tene-install-debian,220,95]
+
 &#xa0; &#xa0;
+
+[.text-center]
 image::./images/tene-install-w10.jpg[tene-install-w10,293,95]
 
 In your {h-vimrc}[~/.vimrc] add `packadd! vim-tene`.
