@@ -436,6 +436,7 @@ default is 1, and vice versa) in your |.vimrc|.
 	g:tene_modestate    0   	|mode(|1) and |state()| codes, e.g., i S
 	g:tene_path         0   	full filepath of the buffer
 	g:tene_percent      0   	% (at the cursor) through the buffer
+	g:tene_window_num   0   	w{window number} after mode indicator
 
 Setting these will be a matter of preference / how you use Vim.  For example,
 some users have little interest in buffer numbers so may wish to set
@@ -1010,6 +1011,7 @@ The list of default <Leader> mappings:                 *tene-config-leader-list*
 	ts	TeneS	|mode(|1) and |state()| codes / NOTHING
 	tu	TeneU	U+nnnnn of character(s) at the cursor / NOTHING
 	tv	TeneV	Virtual column number, |virtcol()| / NOTHING
+	tw	TeneW	w{window number} after buffer num or mode / NOTHING
 	tz	TeneZ	Total number of lines in the buffer / NOTHING
 
 Configuring these to use different <Leader>{characters} to the defaults is

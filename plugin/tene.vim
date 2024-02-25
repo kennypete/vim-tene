@@ -24,6 +24,8 @@ g:tene_modes = exists("g:tene_modes") ? g:tene_modes : {}
 # Configurable indicators.  See :h tene-config-ga
 g:tene_ga = exists("g:tene_ga") ? g:tene_ga : {}
 g:tene_ga['buftypehelp'] = has_key(g:tene_ga, 'buftypehelp') ? g:tene_ga['buftypehelp'] : ['[help]', '']
+g:tene_ga['bufnr'] = has_key(g:tene_ga, 'bufnr') ? g:tene_ga['bufnr'] : ['b', 'в']
+g:tene_ga['winnr'] = has_key(g:tene_ga, 'winnr') ? g:tene_ga['winnr'] : ['w', 'ш']
 g:tene_ga['paste'] = has_key(g:tene_ga, 'paste') ? g:tene_ga['paste'] : ['P', '']
 g:tene_ga['mod'] =  has_key(g:tene_ga, 'mod') ? g:tene_ga['mod'] : ['[+]', '']
 g:tene_ga['noma'] =  has_key(g:tene_ga, 'noma') ? g:tene_ga['noma'] : ['[-]', '']
@@ -52,6 +54,7 @@ g:tene_mode = exists("g:tene_mode") ? g:tene_mode : 0
 g:tene_modestate = exists("g:tene_modestate") ? g:tene_modestate : 0
 g:tene_path = exists("g:tene_path") ? g:tene_path : 0
 g:tene_percent = exists("g:tene_percent") ? g:tene_percent : 0
+g:tene_window_num = exists("g:tene_window_num") ? g:tene_window_num : 0
 # }}}
 # Autocommand group {{{
 augroup tene
@@ -111,8 +114,10 @@ set statusline+=\
 # The buffer number of the buffer in each window - optional.
 # This could have a total buffers option added with set statusline+=\ %(%{'b'.bufnr('%')}/%{len(getbufinfo())}\ %)
 # but testing showed it was very distracting because the buffers are created and wiped not only by the user, so the number moves around a lot.
-set statusline+=%{g:tene_buffer_num==1?'b'..bufnr('%')..'\ ':''}
-# Truncate the statusline here.
+set statusline+=%{g:tene_buffer_num==1?(g:tene_glyphs==1?(g:tene_ga['bufnr'][1]):(g:tene_ga['bufnr'][0]))..bufnr()..'\ ':''}
+# Provide the current window number
+set statusline+=%{g:tene_window_num==1?(g:tene_glyphs==1?(g:tene_ga['winnr'][1]):(g:tene_ga['winnr'][0]))..winnr()..'\ ':''}
+## Truncate the statusline here.
 set statusline+=%<
 # A paste indicator &paste is on.  :h 'paste'
 set statusline+=%{!&readonly&&&paste!=0?(g:tene_glyphs==1?(g:tene_ga['paste'][1])..'\ ':(g:tene_ga['paste'][0])..'\ '):''}
@@ -196,6 +201,7 @@ map <Plug>TeneS <Cmd>execute "let g:tene_modestate = (g:tene_modestate == 1) ? 0
 map <Plug>TeneP <Cmd>execute "let g:tene_path = (g:tene_path == 1) ? 0 : 1"<CR>
 map <Plug>TeneU <Cmd>execute "let g:tene_unicode = (g:tene_unicode == 1) ? 0 : 1"<CR>
 map <Plug>TeneV <Cmd>execute "let g:tene_virtcol = (g:tene_virtcol == 1) ? 0 : 1"<CR>
+map <Plug>TeneW <Cmd>execute "let g:tene_window_num = (g:tene_window_num == 1) ? 0 : 1"<CR>
 map <Plug>TeneZ <Cmd>execute "let g:tene_line_nums = (g:tene_line_nums == 1) ? 0 : 1"<CR>
 # }}}
 # <Leader> key map (nvo) mappings {{{
@@ -223,6 +229,7 @@ execute (!hasmapto('<Plug>TeneP') && maparg('<Leader>tp', '') == '') ? ':map <Le
 execute (!hasmapto('<Plug>TeneS') && maparg('<Leader>ts', '') == '') ? ':map <Leader>ts <Plug>TeneS' : ''
 execute (!hasmapto('<Plug>TeneU') && maparg('<Leader>tu', '') == '') ? ':map <Leader>tu <Plug>TeneU' : ''
 execute (!hasmapto('<Plug>TeneV') && maparg('<Leader>tv', '') == '') ? ':map <Leader>tv <Plug>TeneV' : ''
+execute (!hasmapto('<Plug>TeneW') && maparg('<Leader>tw', '') == '') ? ':map <Leader>tw <Plug>TeneW' : ''
 execute (!hasmapto('<Plug>TeneZ') && maparg('<Leader>tz', '') == '') ? ':map <Leader>tz <Plug>TeneZ' : ''
 # }}}
 # Licence {{{

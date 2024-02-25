@@ -2,7 +2,7 @@
 :author: Peter Kenny
 :doctype: article
 :icons: font
-:pdf-theme: D:\git.kennypete\asciidoc\adoc\pdf\README-theme.yml
+:pdf-theme: D:\github.kennypete\asciidoc\adoc\pdf\README-theme.yml
 :sectnums:
 //experimental is needed for kbd:[], which is NOT experimental 
 :experimental:
@@ -195,7 +195,7 @@ It is not easy to outline all of the features of vim-tene, though here are three
 
 &#xa0;
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/c5328cb745eac396b7a243f7643420ff786c50fa/tene-intro-01.jpg[tene-intro-01,787,151,align="center"]
+image::./images/tene-intro-01.jpg[tene-intro-01,787,151,align="center"]
 
 &#xa0;
 
@@ -203,7 +203,7 @@ image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/c5
 
 &#xa0;
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/c5328cb745eac396b7a243f7643420ff786c50fa/tene-intro-02.jpg[tene-intro-02,787,151,align="center"]
+image::./images/tene-intro-02.jpg[tene-intro-02,787,151,align="center"]
 
 &#xa0;
 
@@ -211,7 +211,7 @@ image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/c5
 
 &#xa0;
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/c5328cb745eac396b7a243f7643420ff786c50fa/tene-intro-03.jpg[tene-intro-03,787,151,align="center"]
+image::./images/tene-intro-03.jpg[tene-intro-03,787,151,align="center"]
 
 <<<
 
@@ -248,9 +248,9 @@ If you use a plugin manager (other than vim-plug, the only manager included, bel
 You should have a directory structure like this (Linux and Windows respectively):
 
 [.text-center]
-image:https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/3ca3c00094ef7e00e5b676fdd90103171d6577a3/tene-install-debian.jpg[tene-install-debian,220,95]
+image::./images/tene-install-debian.jpg[tene-install-debian,220,95]
 &#xa0; &#xa0;
-image:https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/3ca3c00094ef7e00e5b676fdd90103171d6577a3/tene-install-w10.jpg[tene-install-w10,293,95]
+image::./images/tene-install-w10.jpg[tene-install-w10,293,95]
 
 In your {h-vimrc}[~/.vimrc] add `packadd! vim-tene`.
 For an example of this, _see_ <<#tene-vimrc-packadd>>.
@@ -415,7 +415,7 @@ a|A &#x201c;translation&#x201d; of that command is, &#x201c;Set the statusline t
 
 To illustrate, the &#x201c;standard&#x201d; {h-statusline}[statusline], for a {h-modified}[modified], unsaved buffer, and with no content will appear like this:
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-standard-vim-statusline.jpg[tene-standard-vim-statusline,align="center"]
+image::./images/tene-standard-vim-statusline.jpg[tene-standard-vim-statusline,align="center"]
 
 This plugin, as others do, extends way beyond the &#x201c;standard&#x201d;.
 In this plugin&#x2019;s case, there are myriad options set by default.
@@ -508,7 +508,7 @@ ifdef::env-github,backend-html5[]
 This animated .gif shows all of Vim&#x2019;s {h-mode}[modes], how they may be accessed, and how they display on the {h-statusline}[statusline] using vim-tene.
 The .gif loops, though it takes a while to demonstrate everything so, if you want to start from the beginning, right-click the image and choose the option to open it in a new tab/window.
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-demo-modes.gif[tene-demo-modes,645,453,align="center",role="thumb"]
+image::./images/tene-demo-modes.gif[tene-demo-modes,645,453,align="center",role="thumb"]
 endif::env-github,backend-html5[]
 
 ifndef::backend-html5,env-github[link:https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-demo-modes.gif[Demonstration of modes]]
@@ -715,7 +715,7 @@ let g:tene_ga["line()"] = ['¶', '¶']
 
 All of g:tene_ga {h-dictionaries}[dictionary&#x2019;s] configurable items, and their ASCII and Unicode glyph defaults, are shown below.
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/a444198bb6db3b7b925c18ab19b86df287b82578/tene-ascii-glyphs.jpg[tene-ascii-glyphs,485,212,align="center"]
+image::./images/tene-ascii-glyphs.jpg[tene-ascii-glyphs,485,212,align="center"]
 
 [NOTE]
 ====
@@ -785,11 +785,11 @@ The images below illustrate most of the ASCII and Unicode indicators as they app
 
 ===== ASCII defaults
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-ascii-statusline.jpg[tene-ascii-statusline,align="center"]
+image::./images/tene-ascii-statusline.jpg[tene-ascii-statusline,align="center"]
 
 ===== Unicode defaults
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-unicode-statusline.jpg[tene-unicode-statusline,align="center"]
+image::./images/tene-unicode-statusline.jpg[tene-unicode-statusline,align="center"]
 
 [#tene-config-toggles]
 === Binary variables for toggling features
@@ -811,12 +811,13 @@ They may be overridden by setting them to the opposite in your {h-vimrc}[~/.vimr
 |g:tene_line_nums                 |total number of lines in the buffer
 |g:tene_virtcol                   |virtual column number, {h-virtcol}[virtcol()]
 |g:tene_unicode                   |U+nnnnn of character(s) at the cursor
-|g:tene_col        .6+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
+|g:tene_col        .7+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
 |g:tene_hl_group                  |{h-highlight-groups}[highlight group] under the cursor
 |g:tene_mode                      |n, ce instead of NORMAL, EX, etc.
 |g:tene_modestate                 |{h-mode}[mode(1)] and {h-state}[state()] codes, e.g., i S
 |g:tene_path                      |full filepath of the buffer
 |g:tene_percent                   |% (at the cursor) through the buffer
+|g:tene_window_num                |w{window number} after buffer number or mode indicator
 |===
 
 Setting these will be a matter of preference / how you use Vim.
@@ -831,15 +832,15 @@ That is why the ability to not only set them in your {h-vimrc}[~/.vimrc], but al
 For example, while creating this plugin it was priceless having `g:tene_modestate`, which shows not only the current {h-mode}[mode(1)] code but also the {h-state}[state()].
 For example, when in {h-normal}[Normal] mode and d is pressed, the mode and state are &#x201c;no oxS", with &#x201c;no&#x201d; meaning mode {h-operator-pending}[Operator-pending] and state &#x201c;oxS".
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-mode(no)_state(oxS).jpg[tene-mode(no)_state(oxS),321,95,align="center"]
+image::./images/tene-mode(no)_state(oxS).jpg[tene-mode(no)_state(oxS),321,95,align="center"]
 
-The o, x, and S mean:
-
-[cols="1,8"]
+[cols="1,6"]
 |===
-|o |operator pending
-|x |executing an {h-autocommand}[autocommand]
-|S |not triggering {h-safestate}[SafeState] or {h-safestateagain}[SafeStateAgain]
+^|*Indicator* |*Meaning*
+
+^|*o* |operator pending
+^|*x* |executing an {h-autocommand}[autocommand]
+^|*S* |not triggering {h-safestate}[SafeState] or {h-safestateagain}[SafeStateAgain]
 |===
 
 [#tene-config-toggle-keymap]
@@ -895,7 +896,7 @@ _Refer_ https://unicode.org/faq/char_combmark.html
 These have been handled so that up to three characters under the cursor will be shown in the {h-statusline}[statusline].
 The last example, above, displays *U+41,U+308,U+327*, as shown below.
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-unicode-composing-chars.jpg[tene-unicode-composing-chars,549,184,align="center"]
+image::./images/tene-unicode-composing-chars.jpg[tene-unicode-composing-chars,549,184,align="center"]
 
 [NOTE]
 [%unbreakable]
@@ -913,7 +914,7 @@ Putting aside the merits of programming ligatures (no thanks, IMHO), it is your 
 ifdef::env-github,backend-html5[]
 This .gif demonstrates toggling g:tene&#x2019;s variables:
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-demo-toggles.gif[tene-demo-toggles,align="center",role="thumb"]
+image::./images/tene-demo-toggles.gif[tene-demo-toggles,align="center",role="thumb"]
 endif::env-github,backend-html5[]
 
 ifndef::env-github,backend-html5[https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-demo-toggles.gif[Demonstration of toggling variables]]
@@ -1065,7 +1066,7 @@ In default Windows {h-gvim}[gvim] this is {h-highlight-guifg}[guifg]=LightGrey a
 ifdef::env-github,backend-html5[]
 This .gif demonstrates changing {h-colorscheme}[colorschemes] and how vim-tene, when using defaults, adjusts.
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/a444198bb6db3b7b925c18ab19b86df287b82578/tene-demo-highlight.gif[tene-demo-highlight,645,446,align="center",role="thumb"]
+image::./images/tene-demo-highlight.gif[tene-demo-highlight,645,446,align="center",role="thumb"]
 endif::env-github,backend-html5[]
 
 ifndef::env-github,backend-html5[https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/a444198bb6db3b7b925c18ab19b86df287b82578/tene-demo-highlight.gif[Demonstration of colorschemes]]
@@ -1161,7 +1162,7 @@ This exploits the limited ability to precede {h-vim9-script}[Vim9 script] with v
 
 If sourced with Vim 8.2 (with patch 1705), a warning may be provided in a popup like this:
 
-image::https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-8.2.3434-warning.jpg[tene-8.2.3434-warning,320,255,align="center"]
+image::./images/tene-8.2.3434-warning.jpg[tene-8.2.3434-warning,320,255,align="center"]
 
 This may be enabled by defining the variable `g:tene_nowarn` in your {h-vimrc}[~/.vimrc], noting it can be defined as _anything_.
 You may want that when you use Vim 9 most of the time and a Vim 8.2 version, without patch 3434, only occasionally.
@@ -1413,6 +1414,7 @@ NOTE: For an animated .gif showing this in action, _see_ <<tene-illustrating-tog
 ^|*ts*  ^|TeneS  |{h-mode}[mode(1)] and {h-state}[state()] codes |_nothing_
 ^|*tu*  ^|TeneU  |U+nnnnn of character(s) at the cursor |_nothing_
 ^|*tv*  ^|TeneV  |Virtual column number, {h-virtcol}[virtcol()] |_nothing_
+^|*tw*  ^|TeneW  |w{window number} after buffer number or {h-mode}[mode] indicator |_nothing_
 ^|*tz*  ^|TeneZ  |Total number of lines in the buffer |_nothing_
 |===
 
@@ -1444,7 +1446,7 @@ Impromptu?
 Sure.
 I wanted to get away from bloated {h-statusline}[statusline] plugins, which, although sometimes feature-heavy, can be slow, can be hard to follow what&#x2019;s going on (with heaps of {h-user-functions}[user-defined functions] spread across lots of files), and try to do lots of things to accommodate other plugins.
 
-Avoiding &#x201c;line&#x201d; directly in the name was incidental because, although it&rsquo;s useful for identification as a {h-statusline}[statusline] plugin, I made the deliberate decision to use only {h-ternary}[ternary] {h-expression}[expressions] (and also no {h-user-functions}[user-defined functions]), &#x201c;tene&#x201d; works in that regard too: it&rsquo;s a **te**__rnary statusli__**ne**.
+Avoiding &#x201c;line&#x201d; directly in the name was incidental because, although it is useful for identification as a {h-statusline}[statusline] plugin, I made the deliberate decision to use only {h-ternary}[ternary] {h-expression}[expressions] (and also no {h-user-functions}[user-defined functions]), &#x201c;tene&#x201d; works in that regard too: it&#x2019;s a **te**__rnary statusli__**ne**.
 
 [#tene-licence]
 == Licence
