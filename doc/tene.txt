@@ -250,7 +250,10 @@ i.e., keystrokes, from Normal mode, that will take you to the applicable mode.
 	Rvc     	VIRTUAL REPLACE COMPLETION C	g R CTRL-X CTRL-]
 	Rvx     	VIRTUAL REPLACE COMPLETION X	g R CTRL-X
 	c       	COMMAND-LINE                	:
+	ct      	TERMIMAL CMDLINE            	:term CTRL-W :
+	cr      	CMDLINE OVERSTRIKE          	: <Insert>
 	cv      	VIM EX                      	g Q
+	cvr     	VIM EX OVERSTRIKE           	g Q <Insert>
 	ce      	EX                          	Q
 	t       	TERMINAL-JOB                	:term
 
@@ -264,6 +267,8 @@ i.e., keystrokes, from Normal mode, that will take you to the applicable mode.
 		  into the ternary expressions using |get|, i.e., >
 		    get({dict}, {key} [, {default}])
 <		  This is an efficient way to set defaults for the 31 names.
+	       4. Mode cvr will only display the mode name if <Insert> occurs
+		  when the previouly entered command was |redrawstatus|.
 
 3.1.1 Vim's 'showmode' option
 Vim's default approach is to 'showmode', which displays a message on the last
@@ -1056,6 +1061,6 @@ LICENCE                                              *tene-license* *tene-licenc
 
 BSD 3-Clause License
 https://github.com/kennypete/vim-tene/blob/main/LICENCE
-Copyright © 2023 Peter Kenny
+Copyright © 2024 Peter Kenny
 
  vim:tw=78:ts=8:noet:ft=help:norl:

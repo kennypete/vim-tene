@@ -95,6 +95,7 @@ endif::env-github[]
 :h-i-ctrl-v-digit: {h-i-ctrl-v}%5Fdigit
 :h-i-ctrl-y: {h}insert.txt.html#i%5FCTRL-Y
 :h-insert: {h}insert.txt.html#Insert-mode
+:h-iminsert: {h}options.txt.html#%27iminsert%27
 :h-insertmode: {h}options.txt.html#%27insertmode%27
 :h-key: {h}options.txt.html#%27key%27
 :h-keymap: {h}options.txt.html#%27keymap%27
@@ -312,7 +313,7 @@ Put tene.vim into your `~/.vim` directory (or anywhere in your {h-runtimepath}[r
 
 You would not automatically get the benefits of the help file, but this just illustrates the simplicity, versatility, and portability that comes with being one .vim file.
 
-TIP: This may be your preferred method if you use a lot of different versions of Vim, including old ones. +
+TIP: This may be your preferred method if you use a lot of different versions of Vim, including really old ones. +
 (Including because `packadd` will not work below version 704 with patch 1485).
 |===
 
@@ -516,6 +517,8 @@ endif::env-github,backend-html5[]
 
 ifndef::backend-html5,env-github[link:https://gist.github.com/kennypete/0057cdc734b5b55d07edd0094a1f4633/raw/4662eb72cde14b563c77708bb907e82fe817611d/tene-demo-modes.gif[Demonstration of modes]]
 
+NOTE: This does not show modes `ct`, `cr`, and `cvr` enabled with link:https://github.com/vim/vim/commit/71ebf3bacaa22c841d9a8cb050c52fb21ac0970a[patch 9.0.1855: mode() doesn't indicate command line for terminal] and https://github.com/vim/vim/commit/d1c3ef1f47c87d1da056c56564e1985fe6f2931d[patch 9.0.2133: Cannot detect overstrike mode in Cmdline mode].
+
 [#tene-configuration]
 == Configuration
 
@@ -597,7 +600,10 @@ Renaming them from the default (column 2) involves determining the right diction
 ^|*Rvc*                    |VIRTUAL REPLACE COMPLETION C |kbd:[g]kbd:[R]kbd:[CTRL-X]kbd:[CTRL-\]]
 ^|*Rvx*                    |VIRTUAL REPLACE COMPLETION X |kbd:[g]kbd:[R]kbd:[CTRL-X]
 ^|*c*                      |COMMAND-LINE                 |kbd:[:]
+^|*ct*                     |TERMINAL CMDLINE             |kbd:[:term]kbd:[CTRL-W]kbd:[:]
+^|*cr*                     |CMDLINE OVERSTRIKE           |kbd:[:]kbd:[<Insert>]
 ^|*cv*                     |VIM EX                       |kbd:[g]kbd:[Q]
+^|*cvr*                    |VIM EX OVERSTRIKE            |kbd:[g]kbd:[Q]kbd:[<Insert>]
 ^|*ce*                     |EX                           |kbd:[Q]
 ^|*t*                      |TERMINAL-JOB                 |kbd:[:term]
 |===
@@ -615,6 +621,11 @@ The defaults are built into the {h-ternary}[ternary] {h-expression}[expressions]
  get({dict}, {key} [, {default}])
 +
 This is an efficient way to set defaults for the 31 names.
+. Modes ct was added with link:https://github.com/vim/vim/commit/71ebf3bacaa22c841d9a8cb050c52fb21ac0970a[patch 9.0.1855] so needs at least that version to display the applicable Mode name.
+. Modes cr and cvr were added with https://github.com/vim/vim/commit/d1c3ef1f47c87d1da056c56564e1985fe6f2931d[patch 9.0.2133] so need at least that version to display the applicable Mode name.
+However, cvr  appears to have been only partly enabled because a manual `redrawstatus` command on the Vim Ex command line appears necessary for it to display.
+So, is not practicably displayable on the statusline.
+Refer: https://github.com/vim/vim/issues/14347[Issue 14347].)
 
 ====
 
@@ -837,6 +848,8 @@ For example, when in {h-normal}[Normal] mode and d is pressed, the mode and stat
 
 image::./images/tene-mode(no)_state(oxS).jpg[tene-mode(no)_state(oxS),321,95,align="center"]
 
+The o, x, and S mean:
+
 [cols="1,6"]
 |===
 ^|*Indicator* |*Meaning*
@@ -863,6 +876,11 @@ This will change mode indicators like #&#xa0;INSERT&#xa0;# to #&#xa0;INSERT &lt;
 For anyone who does not use {h-mbyte-keymap}[keymaps], this is of little importance.
 But, for those who do, it may be preferable to know that the {h-keymap}['keymap'], is active.
 If you really do not want it at all, `let g:tene_keymap=0` in your {h-vimrc}[~/.vimrc] will do that.
+
+Another consideration is what to do with keymaps when in {h-cmdline}[Command-line mode] or {h-vim-ex}[Vim Ex] mode.
+Both of those modes enable the use of keymaps but, unlike the insert modes where the {h-iminsert}['iminsert'] option determines the current setting, it has to be actively enabled/toggled with kbd:[<CTRL-^>] from the command line.
+The approach has been to show the keymap in the statusline, though it just means it is loaded, not that it is active.
+Nonetheless, it may still help those who do use a keymap.
 
 [#tene-config-toggle-Unicode]
 ==== Unicode character identification
@@ -1455,7 +1473,7 @@ Avoiding &#x201c;line&#x201d; directly in the name was incidental because, altho
 == Licence
 
 https://github.com/kennypete/vim-tene/blob/main/LICENCE[BSD 3-Clause License].
-Copyright &#xa9; 2023 Peter Kenny
+Copyright &#xa9; 2024 Peter Kenny
 
 '''
 

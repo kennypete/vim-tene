@@ -99,9 +99,17 @@ set statusline+=%{%g:actual_curwin==win_getid()?(mode(1)==#'Rv'&&state()!=#'S'&&
 set statusline+=%{%g:actual_curwin==win_getid()?(mode(1)==#'Rv'&&state()==#'S'?'%#'..get(g:tene_hi,'o','ErrorMsg')..'#'..g:tene_state_S..'%#'..get(g:tene_hi,'r','Pmenu')..'#\ '..(g:tene_mode==1?'Rv\ ':get(g:tene_modes,'Rv','VIRTUAL\ REPLACE')..'\ '):''):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'Rvc'?'%#'..get(g:tene_hi,'r','Pmenu')..'#\ '..(g:tene_mode==1?'Rvc\ ':get(g:tene_modes,'Rvc','VIRTUAL\ REPLACE\ COMPLETION\ C')..'\ '):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'Rvx'?'%#'..get(g:tene_hi,'r','Pmenu')..'#\ '..(g:tene_mode==1?'Rvx\ ':get(g:tene_modes,'Rvx','VIRTUAL\ REPLACE\ COMPLETION\ X')..'\ '):''%}
-set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'c'&&&iminsert!=1?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'c\ ':get(g:tene_modes,'c','COMMAND-LINE')..'\ '):''%}
-set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'c'&&&iminsert==1?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'c\ ':get(g:tene_modes,'c','COMMAND-LINE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
-set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cv'?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cv\ ':get(g:tene_modes,'cv','VIM\ EX')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'c'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'c\ ':get(g:tene_modes,'c','COMMAND-LINE')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'c'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'c\ ':get(g:tene_modes,'c','COMMAND-LINE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'ct'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'ct\ ':get(g:tene_modes,'ct','TERMINAL\ CMDLINE')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'ct'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'ct\ ':get(g:tene_modes,'ct','TERMINAL\ CMDLINE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cr'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cr\ ':get(g:tene_modes,'cr','CMDLINE\ OVERSTRIKE')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cr'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cr\ ':get(g:tene_modes,'cr','CMDLINE\ OVERSTRIKE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cv'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cv\ ':get(g:tene_modes,'cv','VIM\ EX')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cv'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cv\ ':get(g:tene_modes,'cv','VIM\ EX')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
+# cvr currently only will display if the <Insert> keystroke occurs in the command following entering :redrawstatus, so it is not very practical.  Refer https://github.com/vim/vim/issues/14347
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cvr'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cvr\ ':get(g:tene_modes,'cvr','VIM\ EX\ OVERSTRIKE')..'\ '):''%}
+set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cvr'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cvr\ ':get(g:tene_modes,'cvr','VIM\ EX\ OVERSTRIKE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'ce'?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'ce\ ':get(g:tene_modes,'ce','EX')..'\ '):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'t'?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'t\ ':get(g:tene_modes,'t','TERMINAL-JOB')):''%}
 # Highlight the rest of the active/current window's statusline.
@@ -128,7 +136,7 @@ set statusline+=%{(!&modifiable&&mode()!=#'t')?(g:tene_glyphs==1?(g:tene_ga['nom
 # Display Preview indicator in Preview windows.
 set statusline+=%{&previewwindow==1?(g:tene_glyphs==1?(g:tene_ga['pvw'][1])..'\ ':(g:tene_ga['pvw'][0])..'\ '):''}
 # Display digraph indicator when digraph is enabled.
-set statusline+=%{!&readonly&&&digraph!=0&&(mode(1)==#'cv'\|\|mode(1)==#'c'\|\|mode(1)==#'i'\|\|mode(1)==#'Rv'\|\|mode(1)==#'R')?(g:tene_glyphs==1?(g:tene_ga['dg'][1])..'\ ':(g:tene_ga['dg'][0])..'\ '):''}
+set statusline+=%{!&readonly&&&digraph!=0&&(mode(1)==#'cv'\|\|mode(1)==#'cvr'\|\|mode(1)==#'ct'\|\|mode(1)==#'cr'\|\|mode(1)==#'c'\|\|mode(1)==#'i'\|\|mode(1)==#'Rv'\|\|mode(1)==#'R')?(g:tene_glyphs==1?(g:tene_ga['dg'][1])..'\ ':(g:tene_ga['dg'][0])..'\ '):''}
 # Display a key indicator when key option is on: i.e., the buffer is encrypted.
 set statusline+=%{&key!=''?((g:tene_glyphs==1?(g:tene_ga['key'][1]):(g:tene_ga['key'][0]))..(&cryptmethod!='blowfish2'?'('..&cryptmethod..')':'').'\ '):''}
 # Display a spell indicator when spell checking option is on.
