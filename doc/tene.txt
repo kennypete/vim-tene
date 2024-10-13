@@ -442,6 +442,7 @@ default is 1, and vice versa) in your |.vimrc|.
 	g:tene_path         0   	full filepath of the buffer
 	g:tene_percent      0   	% (at the cursor) through the buffer
 	g:tene_window_num   0   	w{window number} after mode indicator
+	g:tene_himod        0   	prominently highlight modified ([+])
 
 Setting these will be a matter of preference / how you use Vim.  For example,
 some users have little interest in buffer numbers so may wish to set
@@ -606,7 +607,7 @@ Two benefits in doing this include:
 		display well with 'background' either "light" or "dark"
 		using Vim 9's default |colorscheme|s.
 
-The dictionary g:tene_hi (which, by default, is empty) has up to nine items
+The dictionary g:tene_hi (which, by default, is empty) has up to ten items
 that may be used to configure |highlight-groups| to your liking.  By default,
 i.e., if none are overridden, the following groups are used:
 
@@ -623,6 +624,7 @@ i.e., if none are overridden, the following groups are used:
     t       |StatusLineTerm|     Active terminal statusline, after the indicator
     v       |DiffAdd|            |Visual| and |Select| modes' indicators
     x       |StatusLineNC|       Inactive statuslines (the entire statusline)
+    himod   |DiffChange|         Modified indicator; apply a distinct hi
 
 Since the default highlight groups differ depending on the 'background',
 using this approach is also dynamic in that, if the |colorscheme| or background

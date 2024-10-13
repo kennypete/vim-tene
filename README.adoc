@@ -77,6 +77,7 @@ endif::env-github[]
 :h-highlight-guibg: {h}syntax.txt.html#highlight-guibg
 :h-highlight-guifg: {h}syntax.txt.html#highlight-guifg
 :h-hl-diffadd: {h}syntax.txt.html#hl-DiffAdd
+:h-hl-diffchange: {h}syntax.txt.html#hl-DiffChange
 :h-hl-errormsg: {h}syntax.txt.html#hl-ErrorMsg
 :h-hl-pmenu: {h}syntax.txt.html#hl-Pmenu
 :h-hl-statusline: {h}syntax.txt.html#hl-StatusLine
@@ -825,13 +826,14 @@ They may be overridden by setting them to the opposite in your {h-vimrc}[~/.vimr
 |g:tene_line_nums                 |total number of lines in the buffer
 |g:tene_virtcol                   |virtual column number, {h-virtcol}[virtcol()]
 |g:tene_unicode                   |U+nnnnn of character(s) at the cursor
-|g:tene_col        .7+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
+|g:tene_col        .8+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
 |g:tene_hl_group                  |{h-highlight-groups}[highlight group] under the cursor
 |g:tene_mode                      |n, ce instead of NORMAL, EX, etc.
 |g:tene_modestate                 |{h-mode}[mode(1)] and {h-state}[state()] codes, e.g., i S
 |g:tene_path                      |full filepath of the buffer
 |g:tene_percent                   |% (at the cursor) through the buffer
 |g:tene_window_num                |w{window number} after buffer number or mode indicator
+|g:tene_himod                     |prominently highlight the modified symbol (i.e., `[+]`)
 |===
 
 Setting these will be a matter of preference / how you use Vim.
@@ -839,6 +841,9 @@ For example, some users have little interest in buffer numbers so may wish to `l
 
 Some toggles will be more useful depending on the editing scenario.
 That is why the ability to not only set them in your {h-vimrc}[~/.vimrc], but also toggling interactively has been enabled.
+
+NOTE: `g:tene_window_num` and `g:tene_himod` were added after the initial release of vim-tene. +
+As such, they have been defaulted to 0.
 
 [#tene-config-toggle-mode-state]
 ==== Mode and state indicator
@@ -1011,7 +1016,7 @@ Two benefits in doing this include:
 * Little time is wasted messing with colours and, critically,
 * Vim&#x2019;s {h-highlight-default}[default highlight groups] are immune from being cleared by {h-highlight-clear}[highlight-clear], which {h-colorscheme}[colorschemes] normally execute.
 
-The {h-dictionaries}[dictionary] `g:tene_hi` (which, by default, is empty) has up to nine items that may be used to configure {h-highlight-groups}[highlight groups] to your liking.
+The {h-dictionaries}[dictionary] `g:tene_hi` (which, by default, is empty) has up to ten items that may be used to configure {h-highlight-groups}[highlight groups] to your liking.
 By default, i.e., if none are overridden, the following groups are used:
 
 //A shame that GitHub does not honour centring of cells. The ^| are retained
@@ -1057,7 +1062,15 @@ By default, i.e., if none are overridden, the following groups are used:
 ^.^|*x*
 ^.^|{h-hl-statuslinenc}[StatusLineNC]
 .^| Inactive statuslines (the entire statusline)
+//row
+^.^|*himod*
+^.^|{h-hl-diffchange}[DiffChange]
+.^| Specific highlight group to apply to the modified indicator
 |===
+
+NOTE: On 2024-10-13, `himod` was added to enable the user to apply a distinct highlight group to the modified indicator.
+It is activated by `g:tene_himod`.  _See_&#xa0;<<tene-config-toggles>>. +
+(It is unique in that it is the only `g:tene_hi` key-value pair that does not apply to a mode.)
 
 Since the default {h-highlight-groups}[highlight groups] differ depending on the {h-background}[background], using this approach is also dynamic in that, if the {h-colorscheme}[colorscheme] or {h-background}[background] changes, the statuslines do too.
 

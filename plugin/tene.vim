@@ -55,6 +55,7 @@ g:tene_modestate = exists("g:tene_modestate") ? g:tene_modestate : 0
 g:tene_path = exists("g:tene_path") ? g:tene_path : 0
 g:tene_percent = exists("g:tene_percent") ? g:tene_percent : 0
 g:tene_window_num = exists("g:tene_window_num") ? g:tene_window_num : 0
+g:tene_himod = exists("g:tene_himod") ? g:tene_himod : 0
 # }}}
 # Autocommand group {{{
 augroup tene
@@ -130,7 +131,8 @@ set statusline+=%<
 # A paste indicator &paste is on.  :h 'paste'
 set statusline+=%{!&readonly&&&paste!=0?(g:tene_glyphs==1?(g:tene_ga['paste'][1])..'\ ':(g:tene_ga['paste'][0])..'\ '):''}
 # Modified flag (but only display it where the buftype is not 'terminal' because there is no point showing that since it's immediately modified)
-set statusline+=%{&modified&&&buftype!='terminal'?(g:tene_glyphs==1?(g:tene_ga['mod'][1])..'\ ':(g:tene_ga['mod'][0])..'\ '):''}
+# Also, provide the option to highlight the modified indicator.  2024-10-13: This is a new feature, enabling temporary change to the highlight group, reverting to 's'/StatusLine.  To enable this, g:tene_himod (default 1) was added (as this is likely to be wanted.  DiffChange was used for the default highlight group to apply, though like many other features, this can be overridden with g:tene_hi['himod']='DiffText' (for example only; so anything the user wants.)
+set statusline+=%{%&modified&&&buftype!='terminal'?(g:actual_curwin==win_getid()?(g:tene_himod?'%#'..get(g:tene_hi,'himod','DiffChange')..'#\ ':''):'')..(g:tene_glyphs==1?(g:tene_ga['mod'][1])..'\ ':(g:tene_ga['mod'][0])..'\ ')..(g:actual_curwin==win_getid()?'%#'..get(g:tene_hi,'s','StatusLine')..'#':'')..(g:tene_himod&&g:actual_curwin==win_getid()?'\ ':''):''%}
 # Modifiable flag (similar to Modified but also show not modifiable in Terminal-Normal mode, so 't', not the buftype, which includes Terminal-Job).
 set statusline+=%{(!&modifiable&&mode()!=#'t')?(g:tene_glyphs==1?(g:tene_ga['noma'][1])..'\ ':(g:tene_ga['noma'][0])..'\ '):''}
 # Display Preview indicator in Preview windows.
