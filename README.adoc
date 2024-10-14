@@ -826,12 +826,13 @@ They may be overridden by setting them to the opposite in your {h-vimrc}[~/.vimr
 |g:tene_line_nums                 |total number of lines in the buffer
 |g:tene_virtcol                   |virtual column number, {h-virtcol}[virtcol()]
 |g:tene_unicode                   |U+nnnnn of character(s) at the cursor
-|g:tene_col        .8+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
+|g:tene_col        .9+^.^|[.big]*0* |{h-col}[col()] (and -&#x7b;num} if %V is different)
 |g:tene_hl_group                  |{h-highlight-groups}[highlight group] under the cursor
 |g:tene_mode                      |n, ce instead of NORMAL, EX, etc.
 |g:tene_modestate                 |{h-mode}[mode(1)] and {h-state}[state()] codes, e.g., i S
 |g:tene_path                      |full filepath of the buffer
 |g:tene_percent                   |% (at the cursor) through the buffer
+|g:tene_tab_num                   |t{tab number} after buffer/window number/mode indicator
 |g:tene_window_num                |w{window number} after buffer number or mode indicator
 |g:tene_himod                     |prominently highlight the modified symbol (i.e., `[+]`)
 |===
@@ -842,7 +843,7 @@ For example, some users have little interest in buffer numbers so may wish to `l
 Some toggles will be more useful depending on the editing scenario.
 That is why the ability to not only set them in your {h-vimrc}[~/.vimrc], but also toggling interactively has been enabled.
 
-NOTE: `g:tene_window_num` and `g:tene_himod` were added after the initial release of vim-tene. +
+NOTE: `g:tene_window_num`, `g:tene_tab_num`, and `g:tene_himod` were added after the initial release of vim-tene. +
 As such, they have been defaulted to 0.
 
 [#tene-config-toggle-mode-state]
@@ -1436,6 +1437,7 @@ NOTE: For an animated .gif showing this in action, _see_ <<tene-illustrating-tog
 ^| &lt;Leader&gt; ^| &lt;Plug&gt; | Display Toggles &#x201c;on&#x201d; |&#x201c;off&#x201d;
 
 ^|*t%*  ^|Tene%  |Percent (at the cursor) through the buffer |_nothing_
+^|*ta*  ^|TeneA  |Prominently highlight modified [+] |_Don't_
 ^|*tb*  ^|TeneB  |b{buffer number} after {h-mode}[mode] indicator |_nothing_
 ^|*tc*  ^|TeneC  |{h-col}[col()] (and -&#x7b;num} if %V is different) |_nothing_
 ^|*tf*  ^|TeneF  |File name only |Relative or full path plus file name
@@ -1446,6 +1448,7 @@ NOTE: For an animated .gif showing this in action, _see_ <<tene-illustrating-tog
 ^|*tm*  ^|TeneM  |NORMAL, INSERT, VISUAL LINE, EX |n, i, V, ce
 ^|*tp*  ^|TeneP  |Full file path of the buffer |Relative file path
 ^|*ts*  ^|TeneS  |{h-mode}[mode(1)] and {h-state}[state()] codes |_nothing_
+^|*tt*  ^|TeneT  |t{tab number} after {h-mode}[mode] indicator |_nothing_
 ^|*tu*  ^|TeneU  |U+nnnnn of character(s) at the cursor |_nothing_
 ^|*tv*  ^|TeneV  |Virtual column number, {h-virtcol}[virtcol()] |_nothing_
 ^|*tw*  ^|TeneW  |w{window number} after buffer number or {h-mode}[mode] indicator |_nothing_

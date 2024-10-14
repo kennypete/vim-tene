@@ -441,6 +441,7 @@ default is 1, and vice versa) in your |.vimrc|.
 	g:tene_modestate    0   	|mode(|1) and |state()| codes, e.g., i S
 	g:tene_path         0   	full filepath of the buffer
 	g:tene_percent      0   	% (at the cursor) through the buffer
+	g:tene_tab_num      0   	t{tab number} after mode indicator
 	g:tene_window_num   0   	w{window number} after mode indicator
 	g:tene_himod        0   	prominently highlight modified ([+])
 
@@ -1006,6 +1007,7 @@ The list of default <Leader> mappings:                 *tene-config-leader-list*
      <Leader>	<Plug>	Display Toggles ("on" / "off")
      --------	------	--------------------------
 	t%	Tene%	Percent (at the cursor) through the buffer / NOTHING
+	ta	TeneA	Prominently highlight the modified [+] / Don't
 	tb	TeneB	b{buffer number} after mode indicator / NOTHING
 	tc	TeneC	|col()| (and -{num} if %V is different) / NOTHING
 	tf	TeneF	File name only / Relative or full path plus file name
@@ -1016,6 +1018,7 @@ The list of default <Leader> mappings:                 *tene-config-leader-list*
 	tm	TeneM	NORMAL, INSERT, VISUAL LINE, EX / n, i, V, ce
 	tp	TeneP	Full file path of the buffer / Relative file path
 	ts	TeneS	|mode(|1) and |state()| codes / NOTHING
+	tt	TeneT	t{tab number} after mode indicator / NOTHING
 	tu	TeneU	U+nnnnn of character(s) at the cursor / NOTHING
 	tv	TeneV	Virtual column number, |virtcol()| / NOTHING
 	tw	TeneW	w{window number} after buffer num or mode / NOTHING

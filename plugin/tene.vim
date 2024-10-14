@@ -26,6 +26,7 @@ g:tene_ga = exists("g:tene_ga") ? g:tene_ga : {}
 g:tene_ga['buftypehelp'] = has_key(g:tene_ga, 'buftypehelp') ? g:tene_ga['buftypehelp'] : ['[help]', '']
 g:tene_ga['bufnr'] = has_key(g:tene_ga, 'bufnr') ? g:tene_ga['bufnr'] : ['b', 'в']
 g:tene_ga['winnr'] = has_key(g:tene_ga, 'winnr') ? g:tene_ga['winnr'] : ['w', 'ш']
+g:tene_ga['tabnr'] = has_key(g:tene_ga, 'tabnr') ? g:tene_ga['tabnr'] : ['t', 'т']
 g:tene_ga['paste'] = has_key(g:tene_ga, 'paste') ? g:tene_ga['paste'] : ['P', '']
 g:tene_ga['mod'] =  has_key(g:tene_ga, 'mod') ? g:tene_ga['mod'] : ['[+]', '']
 g:tene_ga['noma'] =  has_key(g:tene_ga, 'noma') ? g:tene_ga['noma'] : ['[-]', '']
@@ -54,6 +55,7 @@ g:tene_mode = exists("g:tene_mode") ? g:tene_mode : 0
 g:tene_modestate = exists("g:tene_modestate") ? g:tene_modestate : 0
 g:tene_path = exists("g:tene_path") ? g:tene_path : 0
 g:tene_percent = exists("g:tene_percent") ? g:tene_percent : 0
+g:tene_tab_num = exists("g:tene_tab_num") ? g:tene_tab_num : 0
 g:tene_window_num = exists("g:tene_window_num") ? g:tene_window_num : 0
 g:tene_himod = exists("g:tene_himod") ? g:tene_himod : 0
 # }}}
@@ -126,6 +128,8 @@ set statusline+=\
 set statusline+=%{g:tene_buffer_num==1?(g:tene_glyphs==1?(g:tene_ga['bufnr'][1]):(g:tene_ga['bufnr'][0]))..bufnr()..'\ ':''}
 # Provide the current window number
 set statusline+=%{g:tene_window_num==1?(g:tene_glyphs==1?(g:tene_ga['winnr'][1]):(g:tene_ga['winnr'][0]))..winnr()..'\ ':''}
+# Provide the current tab number
+set statusline+=%{g:tene_tab_num==1?(tabpagenr('$')>1?(g:tene_glyphs==1?(g:tene_ga['tabnr'][1]):(g:tene_ga['tabnr'][0]))..tabpagenr()..'\ ':''):''}
 ## Truncate the statusline here.
 set statusline+=%<
 # A paste indicator &paste is on.  :h 'paste'
@@ -199,6 +203,7 @@ set statusline+=%{g:tene_modestate==1?mode(1)..'\ '..(state()!=''?state()..'\ ':
 # These map commands establish the mappings (Normal, Visual, Select,
 # Operator-pending modes) for 14 'Tene-{char}' toggles
 map <Plug>Tene% <Cmd>execute "let g:tene_percent = (g:tene_percent == 1) ? 0 : 1"<CR>
+map <Plug>TeneA <Cmd>execute "let g:tene_himod = (g:tene_himod == 1) ? 0 : 1"<CR>
 map <Plug>TeneB <Cmd>execute "let g:tene_buffer_num = (g:tene_buffer_num == 1) ? 0 : 1"<CR>
 map <Plug>TeneC <Cmd>execute "let g:tene_col = (g:tene_col == 1) ? 0 : 1"<CR>
 map <Plug>TeneF <Cmd>execute "let g:tene_file_tail = (g:tene_file_tail == 1) ? 0 : 1"<CR>
@@ -211,6 +216,7 @@ map <Plug>TeneS <Cmd>execute "let g:tene_modestate = (g:tene_modestate == 1) ? 0
 map <Plug>TeneP <Cmd>execute "let g:tene_path = (g:tene_path == 1) ? 0 : 1"<CR>
 map <Plug>TeneU <Cmd>execute "let g:tene_unicode = (g:tene_unicode == 1) ? 0 : 1"<CR>
 map <Plug>TeneV <Cmd>execute "let g:tene_virtcol = (g:tene_virtcol == 1) ? 0 : 1"<CR>
+map <Plug>TeneT <Cmd>execute "let g:tene_tab_num = (g:tene_tab_num == 1) ? 0 : 1"<CR>
 map <Plug>TeneW <Cmd>execute "let g:tene_window_num = (g:tene_window_num == 1) ? 0 : 1"<CR>
 map <Plug>TeneZ <Cmd>execute "let g:tene_line_nums = (g:tene_line_nums == 1) ? 0 : 1"<CR>
 # }}}
@@ -227,6 +233,7 @@ map <Plug>TeneZ <Cmd>execute "let g:tene_line_nums = (g:tene_line_nums == 1) ? 0
 #    most accounts few users use, is an acceptable downside.  And it is
 #    easy to override these anyway, as outlined in 1, above.
 execute (!hasmapto('<Plug>Tene%') && maparg('<Leader>t%', '') == '') ? ':map <Leader>t% <Plug>Tene%' : ''
+execute (!hasmapto('<Plug>TeneA') && maparg('<Leader>ta', '') == '') ? ':map <Leader>ta <Plug>TeneA' : ''
 execute (!hasmapto('<Plug>TeneB') && maparg('<Leader>tb', '') == '') ? ':map <Leader>tb <Plug>TeneB' : ''
 execute (!hasmapto('<Plug>TeneC') && maparg('<Leader>tc', '') == '') ? ':map <Leader>tc <Plug>TeneC' : ''
 execute (!hasmapto('<Plug>TeneF') && maparg('<Leader>tf', '') == '') ? ':map <Leader>tf <Plug>TeneF' : ''
@@ -239,6 +246,7 @@ execute (!hasmapto('<Plug>TeneP') && maparg('<Leader>tp', '') == '') ? ':map <Le
 execute (!hasmapto('<Plug>TeneS') && maparg('<Leader>ts', '') == '') ? ':map <Leader>ts <Plug>TeneS' : ''
 execute (!hasmapto('<Plug>TeneU') && maparg('<Leader>tu', '') == '') ? ':map <Leader>tu <Plug>TeneU' : ''
 execute (!hasmapto('<Plug>TeneV') && maparg('<Leader>tv', '') == '') ? ':map <Leader>tv <Plug>TeneV' : ''
+execute (!hasmapto('<Plug>TeneT') && maparg('<Leader>tt', '') == '') ? ':map <Leader>tt <Plug>TeneT' : ''
 execute (!hasmapto('<Plug>TeneW') && maparg('<Leader>tw', '') == '') ? ':map <Leader>tw <Plug>TeneW' : ''
 execute (!hasmapto('<Plug>TeneZ') && maparg('<Leader>tz', '') == '') ? ':map <Leader>tz <Plug>TeneZ' : ''
 # }}}
