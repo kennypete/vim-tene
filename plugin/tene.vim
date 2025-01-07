@@ -22,24 +22,26 @@ g:tene_hi = exists("g:tene_hi") ? g:tene_hi : {}
 # Configurable mode names.  See :h tene-config-mode-names
 g:tene_modes = exists("g:tene_modes") ? g:tene_modes : {}
 # Configurable indicators.  See :h tene-config-ga
+# Updated so all should work with DejaVu Sans Mono, Fira Code, and Iosevka
 g:tene_ga = exists("g:tene_ga") ? g:tene_ga : {}
-g:tene_ga['buftypehelp'] = has_key(g:tene_ga, 'buftypehelp') ? g:tene_ga['buftypehelp'] : ['[help]', '']
+g:tene_ga['buftypehelp'] = has_key(g:tene_ga, 'buftypehelp') ? g:tene_ga['buftypehelp'] : ['[help]', '💡']
 g:tene_ga['bufnr'] = has_key(g:tene_ga, 'bufnr') ? g:tene_ga['bufnr'] : ['b', 'в']
 g:tene_ga['winnr'] = has_key(g:tene_ga, 'winnr') ? g:tene_ga['winnr'] : ['w', 'ш']
 g:tene_ga['tabnr'] = has_key(g:tene_ga, 'tabnr') ? g:tene_ga['tabnr'] : ['t', 'т']
-g:tene_ga['paste'] = has_key(g:tene_ga, 'paste') ? g:tene_ga['paste'] : ['P', '']
-g:tene_ga['mod'] =  has_key(g:tene_ga, 'mod') ? g:tene_ga['mod'] : ['[+]', '']
-g:tene_ga['noma'] =  has_key(g:tene_ga, 'noma') ? g:tene_ga['noma'] : ['[-]', '']
-g:tene_ga['pvw'] = has_key(g:tene_ga, 'pvw') ? g:tene_ga['pvw'] : ['[Preview]', '']
+g:tene_ga['paste'] = has_key(g:tene_ga, 'paste') ? g:tene_ga['paste'] : ['P', '📋']
+g:tene_ga['mod'] =  has_key(g:tene_ga, 'mod') ? g:tene_ga['mod'] : ['[+]', '➕']
+g:tene_ga['noma'] =  has_key(g:tene_ga, 'noma') ? g:tene_ga['noma'] : ['[-]', '🔒']
+g:tene_ga['pvw'] = has_key(g:tene_ga, 'pvw') ? g:tene_ga['pvw'] : ['[Preview]', '🔎']
 g:tene_ga['dg'] = has_key(g:tene_ga, 'dg') ? g:tene_ga['dg'] : ['^K', 'Æ']
-g:tene_ga['key'] = has_key(g:tene_ga, 'key') ? g:tene_ga['key'] : ['E', '']
-g:tene_ga['spell'] = has_key(g:tene_ga, 'spell') ? g:tene_ga['spell'] : ['S', '']
-g:tene_ga['recording'] = has_key(g:tene_ga, 'recording') ? g:tene_ga['recording'] : ['@', '']
-g:tene_ga['ro'] = has_key(g:tene_ga, 'ro') ? g:tene_ga['ro'] : ['[RO]', '']
+g:tene_ga['key'] = has_key(g:tene_ga, 'key') ? g:tene_ga['key'] : ['E', '🔑']
+g:tene_ga['spell'] = has_key(g:tene_ga, 'spell') ? g:tene_ga['spell'] : ['S', '🔤']
+g:tene_ga['recording'] = has_key(g:tene_ga, 'recording') ? g:tene_ga['recording'] : ['@', '●']
+g:tene_ga['ro'] = has_key(g:tene_ga, 'ro') ? g:tene_ga['ro'] : ['[RO]', '🚫']
 g:tene_ga['line()'] = has_key(g:tene_ga, 'line()') ? g:tene_ga['line()'] : ['_', '']
-g:tene_ga['col()'] = has_key(g:tene_ga, 'col()') ? g:tene_ga['col()'] : ['c', '']
+g:tene_ga['col()'] = has_key(g:tene_ga, 'col()') ? g:tene_ga['col()'] : ['c', '🏛️']
 g:tene_ga['virtcol()'] = has_key(g:tene_ga, 'virtcol()') ? g:tene_ga['virtcol()'] : ['|', '']
-g:tene_state_S = exists("g:tene_state_S") ? g:tene_state_S : ' I ' # :h tene-config-state-S
+# :h tene-config-state-S
+g:tene_state_S = exists("g:tene_state_S") ? g:tene_state_S : ' I '
 # Binary variables for toggling features. See :h tene-config-toggles
 g:tene_buffer_num = exists("g:tene_buffer_num") ? g:tene_buffer_num : 1
 g:tene_file_tail = exists("g:tene_file_tail") ? g:tene_file_tail : 1
@@ -110,7 +112,9 @@ set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cr'&&len(&keymap)==0
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cr'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cr\ ':get(g:tene_modes,'cr','CMDLINE\ OVERSTRIKE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cv'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cv\ ':get(g:tene_modes,'cv','VIM\ EX')..'\ '):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cv'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cv\ ':get(g:tene_modes,'cv','VIM\ EX')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
-# cvr currently only will display if the <Insert> keystroke occurs in the command following entering :redrawstatus, so it is not very practical.  Refer https://github.com/vim/vim/issues/14347
+# cvr currently only will display if the <Insert> keystroke occurs in the
+# command following entering :redrawstatus, so it is not very practical.
+# Refer https://github.com/vim/vim/issues/14347
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cvr'&&len(&keymap)==0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cvr\ ':get(g:tene_modes,'cvr','VIM\ EX\ OVERSTRIKE')..'\ '):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'cvr'&&len(&keymap)>0?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'cvr\ ':get(g:tene_modes,'cvr','VIM\ EX\ OVERSTRIKE')..'\ ')..(g:tene_keymap==1?'%k\ ':''):''%}
 set statusline+=%{%g:actual_curwin==win_getid()&&mode(1)==#'ce'?'%#'..get(g:tene_hi,'c','StatusLineTermNC')..'#\ '..(g:tene_mode==1?'ce\ ':get(g:tene_modes,'ce','EX')..'\ '):''%}
@@ -123,8 +127,10 @@ set statusline+=%{%g:actual_curwin==win_getid()?'':'%#'..((mode(1)==#'t'\|\|mode
 set statusline+=%{&buftype=='help'?'\ '..(g:tene_glyphs==1?(g:tene_ga['buftypehelp'][1]):(g:tene_ga['buftypehelp'][0])):''}
 set statusline+=\ 
 # The buffer number of the buffer in each window - optional.
-# This could have a total buffers option added with set statusline+=\ %(%{'b'.bufnr('%')}/%{len(getbufinfo())}\ %)
-# but testing showed it was very distracting because the buffers are created and wiped not only by the user, so the number moves around a lot.
+# This could have a total buffers option added with
+# set statusline+=\ %(%{'b'.bufnr('%')}/%{len(getbufinfo())}\ %)
+# but testing showed it was very distracting because the buffers are created
+# and wiped not only by the user, so the number moves around a lot.
 set statusline+=%{g:tene_buffer_num==1?(g:tene_glyphs==1?(g:tene_ga['bufnr'][1]):(g:tene_ga['bufnr'][0]))..bufnr()..'\ ':''}
 # Provide the current window number
 set statusline+=%{g:tene_window_num==1?(g:tene_glyphs==1?(g:tene_ga['winnr'][1]):(g:tene_ga['winnr'][0]))..winnr()..'\ ':''}
@@ -134,23 +140,32 @@ set statusline+=%{g:tene_tab_num==1?(tabpagenr('$')>1?(g:tene_glyphs==1?(g:tene_
 set statusline+=%<
 # A paste indicator &paste is on.  :h 'paste'
 set statusline+=%{!&readonly&&&paste!=0?(g:tene_glyphs==1?(g:tene_ga['paste'][1])..'\ ':(g:tene_ga['paste'][0])..'\ '):''}
-# Modified flag (but only display it where the buftype is not 'terminal' because there is no point showing that since it's immediately modified)
-# Also, provide the option to highlight the modified indicator.  2024-10-13: This is a new feature, enabling temporary change to the highlight group, reverting to 's'/StatusLine.  To enable this, g:tene_himod (default 1) was added (as this is likely to be wanted.  DiffChange was used for the default highlight group to apply, though like many other features, this can be overridden with g:tene_hi['himod']='DiffText' (for example only; so anything the user wants.)
-set statusline+=%{%&modified&&&buftype!='terminal'?(g:actual_curwin==win_getid()?(g:tene_himod?'%#'..get(g:tene_hi,'himod','DiffChange')..'#\ ':''):'')..(g:tene_glyphs==1?(g:tene_ga['mod'][1])..'\ ':(g:tene_ga['mod'][0])..'\ ')..(g:actual_curwin==win_getid()?'%#'..get(g:tene_hi,'s','StatusLine')..'#':'')..(g:tene_himod&&g:actual_curwin==win_getid()?'\ ':''):''%}
-# Modifiable flag (similar to Modified but also show not modifiable in Terminal-Normal mode, so 't', not the buftype, which includes Terminal-Job).
+# Modified flag (but only display it where the buftype is not 'terminal'
+# because there is no point showing that since it's immediately modified)
+# Also, provide the option to highlight the modified indicator.
+# 2024-10-13: This is a new feature, enabling temporary change to the
+# highlight group, reverting to 's'/StatusLine.  To enable this,
+# g:tene_himod (default 1) was added (as this is likely to be wanted.
+# DiffChange was used for the default highlight group to apply, though like
+# many other features, this can be overridden with
+# g:tene_hi['himod']='DiffText' (for example only; so anything a user wants.)
+# 2024-11-06: Too many spaces in some instances - fixed.
+set statusline+=%{%&modified&&&buftype!='terminal'?(g:actual_curwin==win_getid()?(g:tene_himod?'%#'..get(g:tene_hi,'himod','DiffChange')..'#':''):'')..(g:tene_glyphs==1?(g:tene_ga['mod'][1]):(g:tene_ga['mod'][0]))..(g:actual_curwin==win_getid()?'%#'..get(g:tene_hi,'s','StatusLine')..'#\ ':'\ '):''%}
+# Modifiable flag (similar to Modified but also show not modifiable in
+# Terminal-Normal mode, so 't', not the buftype, which includes Terminal-Job).
 set statusline+=%{(!&modifiable&&mode()!=#'t')?(g:tene_glyphs==1?(g:tene_ga['noma'][1])..'\ ':(g:tene_ga['noma'][0])..'\ '):''}
 # Display Preview indicator in Preview windows.
 set statusline+=%{&previewwindow==1?(g:tene_glyphs==1?(g:tene_ga['pvw'][1])..'\ ':(g:tene_ga['pvw'][0])..'\ '):''}
 # Display digraph indicator when digraph is enabled.
 set statusline+=%{!&readonly&&&digraph!=0&&(mode(1)==#'cv'\|\|mode(1)==#'cvr'\|\|mode(1)==#'ct'\|\|mode(1)==#'cr'\|\|mode(1)==#'c'\|\|mode(1)==#'i'\|\|mode(1)==#'Rv'\|\|mode(1)==#'R')?(g:tene_glyphs==1?(g:tene_ga['dg'][1])..'\ ':(g:tene_ga['dg'][0])..'\ '):''}
-# Display a key indicator when key option is on: i.e., the buffer is encrypted.
+# Display key indicator when key option is on: i.e., the buffer is encrypted.
 set statusline+=%{&key!=''?((g:tene_glyphs==1?(g:tene_ga['key'][1]):(g:tene_ga['key'][0]))..(&cryptmethod!='blowfish2'?'('..&cryptmethod..')':'').'\ '):''}
-# Display a spell indicator when spell checking option is on.
+# Display spell indicator when spell checking option is on.
 set statusline+=%{!&readonly&&&spell!=0?(g:tene_glyphs==1?(g:tene_ga['spell'][1])..'\ ':(g:tene_ga['spell'][0])..'\ '):''}
-# Display a macro recording indicator when a macro is being recorded.
+# Display macro recording indicator when a macro is being recorded.
 set statusline+=%{reg_recording()==''?'':(g:tene_glyphs==1?(g:tene_ga['recording'][1]):(g:tene_ga['recording'][0]))..reg_recording()..'\ '}
 # The filename.  Just 'tail' if that option is chosen, noting items %f and %t
-# show as '[No Name]' for the initial buffer - using expand('%:t') prevents that.
+# show as '[No Name]' for the initial buffer; expand('%:t') prevents that.
 set statusline+=%{%g:tene_file_tail==1&&&filetype!='netrw'?expand('%:t')..'\ ':(&filetype!='netrw'?(g:tene_path==0?'%f\ ':'%F\ '):'')%}
 # Read only flag.
 set statusline+=%{&readonly?(g:tene_glyphs==1?(g:tene_ga['ro'][1]):(g:tene_ga['ro'][0])):''}
@@ -196,7 +211,7 @@ set statusline+=%{mode()!=#'t'&&g:tene_unicode==1?'\ ':''}
 # Highlight group of the character under the cursor.
 set statusline+=%{g:tene_hl_group==1?synIDattr(synID(line("."),col("."),1),"name"):''}
 set statusline+=%{g:tene_hl_group==1&&len(synIDattr(synID(line("."),col("."),1),"name"))>1?'\ ':''}
-# Mode and state indicators.  Precision provided by this is great for debugging.
+# Mode and state indicators.  Precision provided is useful for debugging.
 set statusline+=%{g:tene_modestate==1?mode(1)..'\ '..(state()!=''?state()..'\ ':''):''}
 # }}}
 # <Plug> mappings for toggling variables {{{
